@@ -1,0 +1,136 @@
+﻿namespace DataSense
+{
+    partial class Form1
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnLoadCSV = new System.Windows.Forms.Button();
+            this.chHasHeaders = new System.Windows.Forms.CheckBox();
+            this.OFD = new System.Windows.Forms.OpenFileDialog();
+            this.btnAnalyse = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.groupBox1.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.HorizontalScrollbar = true;
+            this.listBox1.Location = new System.Drawing.Point(6, 19);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(374, 212);
+            this.listBox1.Sorted = true;
+            this.listBox1.TabIndex = 0;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.listBox1);
+            this.groupBox1.Location = new System.Drawing.Point(140, 12);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(386, 237);
+            this.groupBox1.TabIndex = 1;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Headers";
+            // 
+            // btnLoadCSV
+            // 
+            this.btnLoadCSV.Location = new System.Drawing.Point(12, 12);
+            this.btnLoadCSV.Name = "btnLoadCSV";
+            this.btnLoadCSV.Size = new System.Drawing.Size(75, 23);
+            this.btnLoadCSV.TabIndex = 2;
+            this.btnLoadCSV.Text = "Load CSV";
+            this.btnLoadCSV.UseVisualStyleBackColor = true;
+            this.btnLoadCSV.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // chHasHeaders
+            // 
+            this.chHasHeaders.AutoSize = true;
+            this.chHasHeaders.Location = new System.Drawing.Point(12, 41);
+            this.chHasHeaders.Name = "chHasHeaders";
+            this.chHasHeaders.Size = new System.Drawing.Size(112, 17);
+            this.chHasHeaders.TabIndex = 3;
+            this.chHasHeaders.Text = "CSV Has Headers";
+            this.chHasHeaders.UseVisualStyleBackColor = true;
+            // 
+            // OFD
+            // 
+            this.OFD.FileName = "openFileDialog1";
+            this.OFD.Filter = "CSV file|*.csv";
+            // 
+            // btnAnalyse
+            // 
+            this.btnAnalyse.Location = new System.Drawing.Point(12, 123);
+            this.btnAnalyse.Name = "btnAnalyse";
+            this.btnAnalyse.Size = new System.Drawing.Size(75, 23);
+            this.btnAnalyse.TabIndex = 4;
+            this.btnAnalyse.Text = "Analyse";
+            this.btnAnalyse.UseVisualStyleBackColor = true;
+            this.btnAnalyse.Click += new System.EventHandler(this.btnAnalyse_Click);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 226);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(538, 592);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnAnalyse);
+            this.Controls.Add(this.chHasHeaders);
+            this.Controls.Add(this.btnLoadCSV);
+            this.Controls.Add(this.groupBox1);
+            this.Name = "Form1";
+            this.Text = "Form1";
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
+            this.groupBox1.ResumeLayout(false);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button btnLoadCSV;
+        private System.Windows.Forms.CheckBox chHasHeaders;
+        private System.Windows.Forms.OpenFileDialog OFD;
+        private System.Windows.Forms.Button btnAnalyse;
+        private System.Windows.Forms.Button button1;
+    }
+}
+
