@@ -85,7 +85,7 @@
             // 
             // btnAnalyse
             // 
-            this.btnAnalyse.Location = new System.Drawing.Point(12, 123);
+            this.btnAnalyse.Location = new System.Drawing.Point(12, 64);
             this.btnAnalyse.Name = "btnAnalyse";
             this.btnAnalyse.Size = new System.Drawing.Size(75, 23);
             this.btnAnalyse.TabIndex = 4;
