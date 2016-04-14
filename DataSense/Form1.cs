@@ -21,15 +21,14 @@ namespace DataSense
         }
 
         List<string> Headers = new List<string>();
-        List<string[]> data = new List<string[]>();
 
         List<kDocument> Documents = new List<kDocument>();
+
+        List<DocEntry> DocEntries = new List<DocEntry>();
 
         private void button1_Click(object sender, EventArgs e)
         {
             Headers.Clear();
-            data.Clear();
-
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 using (FileStream fs = new FileStream(OFD.FileName, FileMode.Open, FileAccess.ReadWrite))
@@ -43,76 +42,57 @@ namespace DataSense
 
                         if (chHasHeaders.Checked)
                         {
-                            listBox1.Items.Clear();
+                            betterListBox1.Items.Clear();
                             Headers.AddRange(fields);
-                            listBox1.Items.AddRange(Headers.ToArray());
+                            betterListBox1.Items.AddRange(Headers.ToArray());
                         }
                         while (!parser.EndOfData)
                         {
                             fields = parser.ReadFields();
-                            data.Add(fields);
+
+                            DateTime ActDate;
+
+                            DateTime.TryParse(fields[6], out ActDate);
+
+                            DocEntries.Add(new DocEntry
+                            {
+                                DocNumber = fields[0],
+                                DocTitle = fields[1],
+                                RevisionNum = fields[2],
+                                VersionNum = fields[3],
+                                DocStatus = fields[4],
+                                RevStatus = fields[5],
+                                ActionDate = ActDate,
+                                Action = fields[7]
+                            });
                         }
-                    }                    
+                    }
                 }
             }
         }
 
+       
+
         private void btnAnalyse_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Clear();
+            //betterListBox1.Items.AddRange(DocEntries.OrderBy(d => d.ActionDate).Select(s => s.toString()).ToArray());
+            var GroupedDocs = DocEntries.GroupBy(g => g.DocNumber);
 
-            var gDoc = data.GroupBy(s => s[0]);
+            List<string> ConsolidatedDocs = new List<string>();
 
-            List<DateTime> Dates = new List<DateTime>();
-            List<string> Statusses = new List<string>();
-            List<int> Ages = new List<int>();
-
-            foreach (var Doc in gDoc)
+            foreach (var Doc in GroupedDocs)
             {
-            Dates = new List<DateTime>();
-            Statusses = new List<string>();
-            Ages = new List<int>();
-
-                DateTime d1;
-
-                Doc.OrderBy(o => o[6]);
-
-                string title = "";
-
-                foreach (string[] entry in Doc)
-                {
-                    DateTime.TryParse(entry[6], out d1);
-
-                    Statusses.Add(entry[5]);
-
-                    if (Dates.Count != 0)
-                    {
-                        if (Dates.Last() == DateTime.Parse("0001/01/01"))
-                        {
-                            Ages.Add(0);
-                        }
-                        else
-                        {
-                            Ages.Add((d1 - Dates.Last()).Days);
-                        }
-                    }
-                    Dates.Add(d1);
-                    title = entry[2];
-                }
-
-                Ages.Add((DateTime.Today - Dates.Last()).Days);
-
-                Documents.Add(new kDocument { DocName = Doc.Key, DocTitle=title, Ages = Ages, Dates = Dates, Statusses = Statusses });
-                
+                string Dates = string.Join(", ", Doc.OrderBy(o => o.ActionDate).Select(s => s.ActionDate.ToShortDateString()));
+                ConsolidatedDocs.Add(Doc.Key + ": " + Dates);
             }
 
-            listBox1.Items.AddRange(Documents.Where(d => d.DocName.Contains("-SC1-")).Select(s => s.ToString()).ToArray());
+            betterListBox1.Items.AddRange(ConsolidatedDocs.ToArray());
 
         }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-
+            
             paint = true;
             this.Invalidate();
             this.Refresh();
@@ -120,58 +100,81 @@ namespace DataSense
 
         bool paint = false;
 
-        void DrawLines(Graphics g, List<kDocument> Docs)
+        void DrawLines(Graphics g, List<kDocument> Docs, int skip)
         {
             int i = 300;
 
             Random r = new Random();
 
-            foreach (kDocument Doc in Docs)
+            foreach (kDocument Doc in Docs.Skip(skip))
             {
 
                 int l = 0;
 
-                for(int j = 0; j < Doc.Ages.Count; j++)
+                int w = 2;
+
+                for (int j = 0; j < Doc.Ages.Count; j++)
                 {
-                    if (Doc.Statusses[j].Contains("WP"))
+                    if (Doc.Statusses[j].Contains("For Review"))
                     {
-                        using (Pen p = new Pen(Color.Yellow, 1))
+                        using (Pen p = new Pen(Color.Cyan, w))
                         {
                             g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
                         }
                     }
-                    else if(Doc.Statusses[j].Contains("G5"))
+                    else if (Doc.Statusses[j].Contains("TRA"))
                     {
-                        using (Pen p = new Pen(Color.Red, 1))
+                        using (Pen p = new Pen(Color.Yellow, w))
                         {
                             g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
                         }
                     }
-                    else if(Doc.Statusses[j].Contains("CGC"))
+                    else if (Doc.Statusses[j].Contains("WP"))
                     {
-                        using (Pen p = new Pen(Color.Green, 1))
+                        using (Pen p = new Pen(Color.Red, w))
                         {
                             g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
                         }
                     }
-                    else if(Doc.Statusses[j].Contains(""))
+                    else if (Doc.Statusses[j].Contains("WP"))
                     {
-                        using (Pen p = new Pen(Color.White, 1))
+                        using (Pen p = new Pen(Color.Red, w))
+                        {
+                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
+                        }
+                    }
+                    else if (Doc.Statusses[j].Contains("G5"))
+                    {
+                        using (Pen p = new Pen(Color.Blue, w))
+                        {
+                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
+                        }
+                    }
+                    else if (Doc.Statusses[j].Contains("CGC"))
+                    {
+                        using (Pen p = new Pen(Color.DarkOrange, w))
+                        {
+                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
+                        }
+                    }
+                    else if (Doc.Statusses[j] == "")
+                    {
+                        using (Pen p = new Pen(Color.White, w))
                         {
                             g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
                         }
                     }
                     else
                     {
-                        using (Pen p = new Pen(Color.Blue, 1))
+                        using (Pen p = new Pen(Color.White, w))
                         {
                             g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
                         }
                     }
 
-                    l += Doc.Ages[j]*2;
+                    l += Doc.Ages[j] * 2;
                 }
-                i += 1;
+                i += w;
             }
         }
 
@@ -179,12 +182,37 @@ namespace DataSense
         {
             if (paint)
             {
-                e.Graphics.Clear(Color.White);
-                DrawLines(e.Graphics, Documents.Where(d => d.DocName.Contains("-NM1-")).ToList());
+                e.Graphics.Clear(Color.Black);
+                DrawLines(e.Graphics, Documents.Where(d => (System.Text.RegularExpressions.Regex.Match(d.DocName, "^\\w{4}-\\w{3}-\\w{4}-\\w{2}-\\w{3}-\\w{4}-\\w{3}").Length > 0) && d.Ages.Sum() < 10000 && d.DocName.Contains("PID")).OrderBy(f => f.DocName.Split('-')[1]).ToList(), betterListBox1.TopIndex);
             }
 
-        }   
+        }
 
+        private void betterListBox1_Scroll(object Sender, BetterListBox.BetterListBoxScrollArgs e)
+        {
+            this.Invalidate();
+            this.Refresh();
+        }
+
+        private void Form1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (paint && e.Y > 300)
+            {
+                betterListBox1.SelectedIndex = (e.Y - 300) / 2 + betterListBox1.TopIndex;
+            }
+        }
+
+        private void betterListBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            betterListBox1.TopIndex = betterListBox1.SelectedIndex;
+            this.Invalidate();
+            this.Refresh();
+        }
 
     }
 
@@ -199,7 +227,7 @@ namespace DataSense
 
         public string ToString()
         {
-            return DocName + ", " + string.Join(", ", Ages.Select(s => s.ToString()).ToArray());
+            return DocName + ", " + string.Join(", ", Dates.Select(d => d.ToShortDateString()).ToArray());
         }
 
     }
@@ -211,4 +239,70 @@ namespace DataSense
         public DateTime StatusDate;
         public int StatusAge;
     }
+
+    public class DocEntry
+    {
+        public string DocNumber;
+        public string DocTitle;
+        public string DocStatus;
+        public string RevStatus;
+        public DateTime ActionDate;
+        public string RevisionNum;
+        public string VersionNum;
+        public string Action;
+
+        public string toString()
+        {
+            return DocNumber + " || " + DocTitle + ": "
+                + DocStatus + ", "
+                + RevStatus + ", "
+                + ActionDate.ToShortDateString() + ", "
+                + RevisionNum + ", "
+                + VersionNum + ", "
+                + Action;
+        }
+    }
+
+    public class BetterListBox : ListBox
+    {
+        // Event declaration
+        public delegate void BetterListBoxScrollDelegate(object Sender, BetterListBoxScrollArgs e);
+        public event BetterListBoxScrollDelegate Scroll;
+        // WM_VSCROLL message constants
+        private const int WM_VSCROLL = 0x0115;
+        private const int SB_THUMBTRACK = 5;
+        private const int SB_ENDSCROLL = 8;
+
+        protected override void WndProc(ref Message m)
+        {
+            // Trap the WM_VSCROLL message to generate the Scroll event
+            base.WndProc(ref m);
+            if (m.Msg == WM_VSCROLL)
+            {
+                int nfy = m.WParam.ToInt32() & 0xFFFF;
+                if (Scroll != null && (nfy == SB_THUMBTRACK || nfy == SB_ENDSCROLL))
+                    Scroll(this, new BetterListBoxScrollArgs(this.TopIndex, nfy == SB_THUMBTRACK));
+            }
+        }
+        public class BetterListBoxScrollArgs
+        {
+            // Scroll event argument
+            private int mTop;
+            private bool mTracking;
+            public BetterListBoxScrollArgs(int top, bool tracking)
+            {
+                mTop = top;
+                mTracking = tracking;
+            }
+            public int Top
+            {
+                get { return mTop; }
+            }
+            public bool Tracking
+            {
+                get { return mTracking; }
+            }
+        }
+    }
+
 }
