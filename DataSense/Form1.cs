@@ -40,12 +40,12 @@ namespace DataSense
 
                         string[] fields = parser.ReadFields();
 
-                        //if (chHasHeaders.Checked)
-                        //{
-                        //    betterListBox1.Items.Clear();
-                        //    Headers.AddRange(fields);
-                        //    betterListBox1.Items.AddRange(Headers.ToArray());
-                        //}
+                        if (chHasHeaders.Checked)
+                        {
+                            betterListBox1.Items.Clear();
+                            Headers.AddRange(fields);
+                            betterListBox1.Items.AddRange(Headers.ToArray());
+                        }
                         while (!parser.EndOfData)
                         {
                             fields = parser.ReadFields();
