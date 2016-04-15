@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.FileIO;
+
+using ExtensionMethods;
 
 namespace DataSense
 {
@@ -22,9 +25,11 @@ namespace DataSense
 
         List<string> Headers = new List<string>();
 
-        List<kDocument> Documents = new List<kDocument>();
-
         List<DocEntry> DocEntries = new List<DocEntry>();
+
+        List<sDocument> ConDocs = new List<sDocument>();
+
+        List<ColourStatus> StatusColours = new List<ColourStatus>();
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -53,8 +58,7 @@ namespace DataSense
                             DateTime ActDate;
 
                             DateTime.TryParse(fields[6], out ActDate);
-
-                            DocEntries.Add(new DocEntry
+                            DocEntry DE = new DocEntry
                             {
                                 DocNumber = fields[0],
                                 DocTitle = fields[1],
@@ -64,147 +68,117 @@ namespace DataSense
                                 RevStatus = fields[5],
                                 ActionDate = ActDate,
                                 Action = fields[7]
-                            });
+                            };
+
+                            DocEntries.Add(DE);
                         }
                     }
                 }
             }
         }
 
-       
-
         private void btnAnalyse_Click(object sender, EventArgs e)
         {
-            //betterListBox1.Items.AddRange(DocEntries.OrderBy(d => d.ActionDate).Select(s => s.toString()).ToArray());
-            var GroupedDocs = DocEntries.GroupBy(g => g.DocNumber);
+            betterListBox1.Items.Clear();
 
-            List<string> ConsolidatedDocs = new List<string>();
-
-            foreach (var Doc in GroupedDocs)
+            var GroupedDocs = DocEntries.GroupBy(g => g.DocNumber); //Group document list by doc number
+                        
+            foreach (var Doc in GroupedDocs) //Loop through each group
             {
-                string Dates = string.Join(", ", Doc.OrderBy(o => o.ActionDate).Select(s => s.ActionDate.ToShortDateString()));
-                ConsolidatedDocs.Add(Doc.Key + ": " + Dates);
+                DateTime dTemp = DateTime.Parse("0001/01/01"); //Temp Variable for loop logic
+
+                sDocument ConsolidatedDoc = new sDocument(); //Class containing all document revision info
+                sStatus ConsolidatedStatus = new sStatus(); //Helper to contain revision lists
+
+                foreach (DocEntry item in Doc.OrderBy(o => o.ActionDate)) //Loop through each entry in current group
+                {
+                    if (dTemp != DateTime.Parse("0001/01/01")) //If date is valid
+                    {
+                        ConsolidatedStatus.Age = (item.ActionDate - dTemp).Days; //Subtract previous date from current entry date
+                    }
+                    else
+                    {
+                        ConsolidatedStatus.Age = 0;
+                    }
+
+                    dTemp = item.ActionDate; //Set temp date to current date
+
+                    ConsolidatedStatus.DocStatus = item.DocStatus;
+                    ConsolidatedStatus.RevisionNum = item.RevisionNum;
+                    ConsolidatedStatus.RevStatus = item.RevStatus; //set status helper status
+
+                    if (item.Action == "")
+                    {
+                        ConsolidatedStatus.Action = item.RevStatus;
+                    }
+                    else
+                    {
+                        ConsolidatedStatus.Action = item.Action;
+                    }
+
+                    ConsolidatedStatus.Date = dTemp; //set status helper date
+
+                    ConsolidatedDoc.DocTitle = item.DocTitle;
+                }
+
+                if (dTemp != DateTime.Parse("0001/01/01") && dTemp <= DateTime.Today) //Subtract last date from today
+                {
+                    ConsolidatedStatus.Age = (DateTime.Today - dTemp).Days;
+                }
+                else
+                {
+                    ConsolidatedStatus.Age = 0;
+                }
+                ConsolidatedDoc.Status.Add(ConsolidatedStatus);
+                ConsolidatedDoc.DocNumber = Doc.Key;
+
+                ConDocs.Add(ConsolidatedDoc);
             }
 
-            betterListBox1.Items.AddRange(ConsolidatedDocs.ToArray());
 
+            StatusColours.Clear();
+
+            string[] Stats = { "CGC", "G5", "WP", "FOR REVIEW" };
+            Color[] Cols = {Color.Green, Color.Blue, Color.Red, Color.Cyan };
+
+            List<string> uniqueStatus = DocEntries.Select(d => d.RevStatus).Distinct().ToList();
+
+            for (int i = 0; i < Stats.Count(); i++)
+            {
+                StatusColours.AddRange(uniqueStatus.Where(w => w.ToUpper().Contains(Stats[i])).Select(s => new ColourStatus(s, Cols[i])));
+            }
+
+            StatusColours.AddRange(uniqueStatus.Where(w => !(w.ToUpper().ContainsAny(Stats))).Select(s => new ColourStatus(s, Color.Silver)));
+
+            StatusColours.Add(new ColourStatus { Status = "TRA", Colour = Color.Yellow });
+
+            StatusColours = StatusColours.OrderBy(o => o.Status).ToList();
+
+            BindColourList();            
+        }
+
+        private void BindColourList()
+        {
+            listBox1.DataSource = null;
+            listBox1.DataSource = StatusColours.Select(s => s.Status).ToList();
+            listBox1.SelectedItems.Clear();
         }
 
         private void button1_Click_1(object sender, EventArgs e)
-        {
-            
-            paint = true;
+        {            
             this.Invalidate();
             this.Refresh();
         }
 
-        bool paint = false;
-
-        void DrawLines(Graphics g, List<kDocument> Docs, int skip)
+        void DrawLines(Graphics g, List<sDocument> Docs, int skip, int width, int DayLength)
         {
-            int i = 300;
-
-            Random r = new Random();
-
-            foreach (kDocument Doc in Docs.Skip(skip))
-            {
-
-                int l = 0;
-
-                int w = 2;
-
-                for (int j = 0; j < Doc.Ages.Count; j++)
-                {
-                    if (Doc.Statusses[j].Contains("For Review"))
-                    {
-                        using (Pen p = new Pen(Color.Cyan, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else if (Doc.Statusses[j].Contains("TRA"))
-                    {
-                        using (Pen p = new Pen(Color.Yellow, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else if (Doc.Statusses[j].Contains("WP"))
-                    {
-                        using (Pen p = new Pen(Color.Red, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else if (Doc.Statusses[j].Contains("WP"))
-                    {
-                        using (Pen p = new Pen(Color.Red, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else if (Doc.Statusses[j].Contains("G5"))
-                    {
-                        using (Pen p = new Pen(Color.Blue, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else if (Doc.Statusses[j].Contains("CGC"))
-                    {
-                        using (Pen p = new Pen(Color.DarkOrange, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else if (Doc.Statusses[j] == "")
-                    {
-                        using (Pen p = new Pen(Color.White, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-                    else
-                    {
-                        using (Pen p = new Pen(Color.White, w))
-                        {
-                            g.DrawLine(p, l, i, l + Doc.Ages[j] * 2, i);
-                        }
-                    }
-
-                    l += Doc.Ages[j] * 2;
-                }
-                i += w;
-            }
-        }
-
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-            if (paint)
-            {
-                e.Graphics.Clear(Color.Black);
-                DrawLines(e.Graphics, Documents.Where(d => (System.Text.RegularExpressions.Regex.Match(d.DocName, "^\\w{4}-\\w{3}-\\w{4}-\\w{2}-\\w{3}-\\w{4}-\\w{3}").Length > 0) && d.Ages.Sum() < 10000 && d.DocName.Contains("PID")).OrderBy(f => f.DocName.Split('-')[1]).ToList(), betterListBox1.TopIndex);
-            }
-
+            
         }
 
         private void betterListBox1_Scroll(object Sender, BetterListBox.BetterListBoxScrollArgs e)
         {
             this.Invalidate();
             this.Refresh();
-        }
-
-        private void Form1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Form1_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (paint && e.Y > 300)
-            {
-                betterListBox1.SelectedIndex = (e.Y - 300) / 2 + betterListBox1.TopIndex;
-            }
         }
 
         private void betterListBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -214,32 +188,75 @@ namespace DataSense
             this.Refresh();
         }
 
-    }
-
-    public class kDocument
-    {
-        public string DocName;
-        public string DocTitle;
-
-        public List<DateTime> Dates;
-        public List<string> Statusses;
-        public List<int> Ages;
-
-        public string ToString()
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            return DocName + ", " + string.Join(", ", Dates.Select(d => d.ToShortDateString()).ToArray());
+
         }
 
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnColour_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndices.Count > 0)
+            {
+                if (colorDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    foreach(int i in listBox1.SelectedIndices)
+                    {
+                        StatusColours[i].Colour = colorDialog1.Color;
+                    }
+                    BindColourList();
+                }
+            }
+
+        }
+
+        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
+        {
+
+            e.DrawBackground();
+
+            using (Brush myBrush = new SolidBrush(StatusColours[e.Index].Colour))
+            {
+
+                int y = (e.Index - listBox1.TopIndex) * listBox1.ItemHeight+6;
+
+                int x = (int)e.Graphics.MeasureString(listBox1.Items[e.Index].ToString(),e.Font).Width;
+
+                e.Graphics.DrawLine(new Pen(myBrush,5), x, y, listBox1.Width, y);
+
+            }
+            using (Brush p = new SolidBrush(listBox1.ForeColor))
+            {
+                e.Graphics.DrawString(listBox1.Items[e.Index].ToString(),
+                e.Font, p, e.Bounds, StringFormat.GenericDefault);
+            }
+            
+            e.DrawFocusRectangle();
+        }
     }
 
-    public class kStatus
+    public class sDocument
     {
-        public string RevStatus;
-        public string DocStatus;
-        public DateTime StatusDate;
-        public int StatusAge;
+        public string DocNumber;
+        public string DocTitle;
+
+        public List<sStatus> Status = new List<sStatus>();
     }
 
+    public class sStatus
+    {
+        public string DocStatus;
+        public string RevisionNum;
+        public string RevStatus;
+        public string Action;
+        public DateTime Date;
+        public int Age;
+    }
+    
     public class DocEntry
     {
         public string DocNumber;
@@ -263,6 +280,24 @@ namespace DataSense
         }
     }
 
+    public class ColourStatus
+    {
+        public string Status;
+        public Color Colour;
+
+        public ColourStatus(string status, Color colour)
+        {
+            Status = status;
+            Colour = colour;
+        }
+
+        public ColourStatus()
+        {
+
+        }
+
+    }
+
     public class BetterListBox : ListBox
     {
         // Event declaration
@@ -284,6 +319,7 @@ namespace DataSense
                     Scroll(this, new BetterListBoxScrollArgs(this.TopIndex, nfy == SB_THUMBTRACK));
             }
         }
+
         public class BetterListBoxScrollArgs
         {
             // Scroll event argument
@@ -305,4 +341,20 @@ namespace DataSense
         }
     }
 
+}
+
+namespace ExtensionMethods
+{
+    public static class MyExtensions
+    {
+        public static bool ContainsAny(this String str, string[] CompareArray)
+        {
+            bool b = false;
+            foreach (string s in CompareArray)
+            {
+                b |= str.Contains(s);
+            }
+            return b;
+        }
+    }
 }
