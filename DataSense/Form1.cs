@@ -29,6 +29,8 @@ namespace DataSense
 
         List<sDocument> ConDocs = new List<sDocument>();
 
+        List<sDocument> FilteredDocs = new List<sDocument>();
+
         List<ColourStatus> StatusColours = new List<ColourStatus>();
 
         private void button1_Click(object sender, EventArgs e)
@@ -79,10 +81,10 @@ namespace DataSense
 
         private void btnAnalyse_Click(object sender, EventArgs e)
         {
-            betterListBox1.Items.Clear();
+            //betterListBox1.Items.Clear();
 
             var GroupedDocs = DocEntries.GroupBy(g => g.DocNumber); //Group document list by doc number
-                        
+
             foreach (var Doc in GroupedDocs) //Loop through each group
             {
                 DateTime dTemp = DateTime.Parse("0001/01/01"); //Temp Variable for loop logic
@@ -90,56 +92,77 @@ namespace DataSense
                 sDocument ConsolidatedDoc = new sDocument(); //Class containing all document revision info
                 sStatus ConsolidatedStatus = new sStatus(); //Helper to contain revision lists
 
+                int sAge = 0;
+                string act = "";
                 foreach (DocEntry item in Doc.OrderBy(o => o.ActionDate)) //Loop through each entry in current group
                 {
                     if (dTemp != DateTime.Parse("0001/01/01")) //If date is valid
                     {
-                        ConsolidatedStatus.Age = (item.ActionDate - dTemp).Days; //Subtract previous date from current entry date
+                        sAge = (item.ActionDate - dTemp).Days; //Subtract previous date from current entry date
                     }
                     else
                     {
-                        ConsolidatedStatus.Age = 0;
+                        sAge = 0;
                     }
 
                     dTemp = item.ActionDate; //Set temp date to current date
 
+                    ConsolidatedStatus.Age = sAge;
                     ConsolidatedStatus.DocStatus = item.DocStatus;
                     ConsolidatedStatus.RevisionNum = item.RevisionNum;
                     ConsolidatedStatus.RevStatus = item.RevStatus; //set status helper status
 
+
+
                     if (item.Action == "")
                     {
-                        ConsolidatedStatus.Action = item.RevStatus;
+                        act = item.RevStatus;
                     }
                     else
                     {
-                        ConsolidatedStatus.Action = item.Action;
+                        act = item.Action;
                     }
 
                     ConsolidatedStatus.Date = dTemp; //set status helper date
+
+                    ConsolidatedDoc.Status.Add(new sStatus
+                    { Age = sAge,
+                        RevStatus = item.RevStatus,
+                        RevisionNum = item.RevisionNum,
+                        Action = act,
+                        DocStatus = item.DocStatus,
+                        Date = item.ActionDate
+                    });
 
                     ConsolidatedDoc.DocTitle = item.DocTitle;
                 }
 
                 if (dTemp != DateTime.Parse("0001/01/01") && dTemp <= DateTime.Today) //Subtract last date from today
                 {
-                    ConsolidatedStatus.Age = (DateTime.Today - dTemp).Days;
+                    sAge = (DateTime.Today - dTemp).Days;
                 }
                 else
                 {
-                    ConsolidatedStatus.Age = 0;
+                    sAge = 0;
                 }
+
+                ConsolidatedStatus.Age = sAge;
+                ConsolidatedStatus.Action = act;
+
                 ConsolidatedDoc.Status.Add(ConsolidatedStatus);
                 ConsolidatedDoc.DocNumber = Doc.Key;
 
                 ConDocs.Add(ConsolidatedDoc);
             }
 
+            FilteredDocs = ConDocs;
+
+            BindDocList();
 
             StatusColours.Clear();
 
             string[] Stats = { "CGC", "G5", "WP", "FOR REVIEW" };
-            Color[] Cols = {Color.Green, Color.Blue, Color.Red, Color.Cyan };
+            Color[] Cols = { Color.Green, Color.Blue, Color.Red, Color.Cyan };
 
             List<string> uniqueStatus = DocEntries.Select(d => d.RevStatus).Distinct().ToList();
 
@@ -154,25 +177,37 @@ namespace DataSense
 
             StatusColours = StatusColours.OrderBy(o => o.Status).ToList();
 
-            BindColourList();            
+            BindColourList();
         }
 
         private void BindColourList()
         {
-            listBox1.DataSource = null;
-            listBox1.DataSource = StatusColours.Select(s => s.Status).ToList();
-            listBox1.SelectedItems.Clear();
+            lstStatus.DataSource = null;
+            lstStatus.DataSource = StatusColours.Select(s => s.Status).ToList();
+            lstStatus.SelectedItems.Clear();
+        }
+
+        private void BindDocList()
+        {
+            lstGraph.DataSource = null;
+            lstGraph.DataSource = FilteredDocs.Select(s => s.DocNumber).ToList();
+            lstGraph.SelectedItems.Clear();
+
+            betterListBox1.DataSource = null;
+            betterListBox1.DataSource = FilteredDocs.Select(s => s.DocNumber + ": " + string.Join(", ", s.Status.Select(ss => ss.Action))).ToList();
+            betterListBox1.SelectedItems.Clear();
+
         }
 
         private void button1_Click_1(object sender, EventArgs e)
-        {            
+        {
             this.Invalidate();
             this.Refresh();
         }
 
         void DrawLines(Graphics g, List<sDocument> Docs, int skip, int width, int DayLength)
         {
-            
+
         }
 
         private void betterListBox1_Scroll(object Sender, BetterListBox.BetterListBoxScrollArgs e)
@@ -200,11 +235,11 @@ namespace DataSense
 
         private void btnColour_Click(object sender, EventArgs e)
         {
-            if (listBox1.SelectedIndices.Count > 0)
+            if (lstStatus.SelectedIndices.Count > 0)
             {
                 if (colorDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    foreach(int i in listBox1.SelectedIndices)
+                    foreach (int i in lstStatus.SelectedIndices)
                     {
                         StatusColours[i].Colour = colorDialog1.Color;
                     }
@@ -222,20 +257,76 @@ namespace DataSense
             using (Brush myBrush = new SolidBrush(StatusColours[e.Index].Colour))
             {
 
-                int y = (e.Index - listBox1.TopIndex) * listBox1.ItemHeight+6;
+                int y = (e.Index - lstStatus.TopIndex) * lstStatus.ItemHeight;
 
-                int x = (int)e.Graphics.MeasureString(listBox1.Items[e.Index].ToString(),e.Font).Width;
+                int x = (int)e.Graphics.MeasureString(lstStatus.Items[e.Index].ToString(), e.Font).Width;
 
-                e.Graphics.DrawLine(new Pen(myBrush,5), x, y, listBox1.Width, y);
+                e.Graphics.FillRectangle(myBrush, lstStatus.Width - e.Bounds.Height - 20, y + 1, e.Bounds.Height - 2, e.Bounds.Height - 2);
 
             }
-            using (Brush p = new SolidBrush(listBox1.ForeColor))
+            using (Brush p = new SolidBrush(lstStatus.ForeColor))
             {
-                e.Graphics.DrawString(listBox1.Items[e.Index].ToString(),
+                e.Graphics.DrawString(lstStatus.Items[e.Index].ToString(),
                 e.Font, p, e.Bounds, StringFormat.GenericDefault);
             }
-            
+
             e.DrawFocusRectangle();
+        }
+
+        private void listBox2_DrawItem(object sender, DrawItemEventArgs e)
+        {
+
+            int width = 4;
+
+            e.DrawBackground();
+
+            using (Brush p = new SolidBrush(lstStatus.ForeColor))
+            {
+                int x = 0;
+                int y = (e.Index - lstGraph.TopIndex) * lstGraph.ItemHeight + (lstGraph.ItemHeight / 2);
+
+                foreach (sStatus stat in FilteredDocs[e.Index].Status)
+                {
+                    //e.Graphics.DrawString(stat.Age.ToString(), e.Font, p, stat.Age, y);
+
+                    foreach(ColourStatus SC in StatusColours)
+                    {
+                        if (stat.Action.ToUpper() == (SC.Status.ToUpper()))
+                        {
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age*width, y);
+                            break;
+                        }
+                        else if(stat.Action.ToUpper().Contains("TRA") && SC.Status == "TRA")
+                        {
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age * width, y);
+                            break;
+                        }
+
+
+                    }
+                    x += stat.Age * width;
+
+                }
+            }
+
+            e.DrawFocusRectangle();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            FilteredDocs = ConDocs.Where(w => w.DocNumber.ToUpper().Contains(textBox1.Text.ToUpper()) && !(w.DocNumber.ToUpper().Contains(textBox2.Text.ToUpper()))).ToList();
+            BindDocList();
+        }
+
+        private void lstGraph_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            betterListBox1.SelectedIndex = lstGraph.SelectedIndex;
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            FilteredDocs = ConDocs.Where(w => w.DocNumber.ToUpper().Contains(textBox1.Text.ToUpper()) && !(w.DocNumber.ToUpper().Contains(textBox2.Text.ToUpper()))).ToList();
+            BindDocList();
         }
     }
 
