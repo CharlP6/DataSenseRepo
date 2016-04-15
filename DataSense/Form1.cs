@@ -33,6 +33,8 @@ namespace DataSense
 
         List<ColourStatus> StatusColours = new List<ColourStatus>();
 
+        List<sStatus> SelectedStatus = new List<sStatus>();
+
         private void button1_Click(object sender, EventArgs e)
         {
             Headers.Clear();
@@ -199,6 +201,12 @@ namespace DataSense
 
         }
 
+        private void BindStatusListBox()
+        {
+            lstDocStats.DataSource = null;
+            lstDocStats.DataSource = SelectedStatus.Select(s => s.Age + " days\t" + s.Date.ToShortDateString() + " \t" + s.RevStatus + " \t" + s.DocStatus).ToList();
+        }
+
         private void button1_Click_1(object sender, EventArgs e)
         {
             this.Invalidate();
@@ -219,8 +227,12 @@ namespace DataSense
         private void betterListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             betterListBox1.TopIndex = betterListBox1.SelectedIndex;
-            this.Invalidate();
-            this.Refresh();
+            if(betterListBox1.SelectedIndex >= 0)
+            {
+                SelectedStatus = FilteredDocs[betterListBox1.SelectedIndex].Status;
+                BindStatusListBox();
+            }
+
         }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
@@ -293,18 +305,18 @@ namespace DataSense
                     {
                         if (stat.Action.ToUpper() == (SC.Status.ToUpper()))
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age*width, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age*width+2, y);
                             break;
                         }
                         else if(stat.Action.ToUpper().Contains("TRA") && SC.Status == "TRA")
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age * width, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age * width+2, y);
                             break;
                         }
 
 
                     }
-                    x += stat.Age * width;
+                    x += stat.Age * width+2;
 
                 }
             }
@@ -321,12 +333,53 @@ namespace DataSense
         private void lstGraph_SelectedIndexChanged(object sender, EventArgs e)
         {
             betterListBox1.SelectedIndex = lstGraph.SelectedIndex;
+            
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
             FilteredDocs = ConDocs.Where(w => w.DocNumber.ToUpper().Contains(textBox1.Text.ToUpper()) && !(w.DocNumber.ToUpper().Contains(textBox2.Text.ToUpper()))).ToList();
             BindDocList();
+        }
+
+        private void listBox1_DrawItem_1(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+            int width = 4;
+
+            int y = (e.Index - lstDocStats.TopIndex) * lstDocStats.ItemHeight;
+
+            string act = SelectedStatus[e.Index].Action;
+
+            Color bColour = StatusColours.Where(w => act.ToUpper().Contains(w.Status.ToUpper())
+            ).Select(s => s.Colour).First();
+
+            using (Brush p = new SolidBrush(bColour))
+            {
+                if (SelectedStatus[e.Index].Age > 0)
+                {
+                    e.Graphics.FillRectangle(p, 0, y, SelectedStatus[e.Index].Age * width, lstDocStats.ItemHeight);
+                }
+                else
+                { 
+                    e.Graphics.FillRectangle(p, 0, y, width, lstDocStats.ItemHeight);
+                }
+            }
+
+            using (Brush p = new SolidBrush(lstDocStats.ForeColor))
+            {
+                e.Graphics.DrawString(lstDocStats.Items[e.Index].ToString(),
+                e.Font, p, e.Bounds, StringFormat.GenericDefault);
+            }
+
+            e.DrawFocusRectangle();
+            
+
+        }
+
+        private void lstDocStats_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 
