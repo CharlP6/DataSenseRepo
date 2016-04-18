@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
@@ -51,9 +52,9 @@ namespace DataSense
 
                         if (chHasHeaders.Checked)
                         {
-                            betterListBox1.Items.Clear();
+                            lstDocList.Items.Clear();
                             Headers.AddRange(fields);
-                            betterListBox1.Items.AddRange(Headers.ToArray());
+                            lstDocList.Items.AddRange(Headers.ToArray());
                         }
                         while (!parser.EndOfData)
                         {
@@ -192,25 +193,20 @@ namespace DataSense
         private void BindDocList()
         {
             lstGraph.DataSource = null;
-            lstGraph.DataSource = FilteredDocs.Select(s => s.DocNumber).ToList();
+            lstGraph.DataSource = FilteredDocs.ToList();
             lstGraph.SelectedItems.Clear();
 
-            betterListBox1.DataSource = null;
-            betterListBox1.DataSource = FilteredDocs.Select(s => s.DocNumber + ": " + string.Join(", ", s.Status.Select(ss => ss.Action))).ToList();
-            betterListBox1.SelectedItems.Clear();
+            lstDocList.DataSource = null;
+            lstDocList.DataSource = FilteredDocs.ToList();//.Select(s => s.DocNumber + ": " + string.Join(", ", s.Status.Select(ss => ss.Action))).ToList();
+            lstDocList.DisplayMember = "StatusList";
+            lstDocList.SelectedItems.Clear();
 
         }
 
         private void BindStatusListBox()
         {
             lstDocStats.DataSource = null;
-            lstDocStats.DataSource = SelectedStatus.Select(s => s.Age + " days\t" + s.Date.ToShortDateString() + " \t" + s.RevStatus + " \t" + s.DocStatus).ToList();
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            this.Invalidate();
-            this.Refresh();
+            lstDocStats.DataSource = SelectedStatus.Select(s => s.Age + " days\t" + s.Date.ToShortDateString() + "\t" + s.Action + "\t" + s.RevStatus + "\t" + s.RevisionNum + " - " + s.DocStatus).ToList();
         }
 
         void DrawLines(Graphics g, List<sDocument> Docs, int skip, int width, int DayLength)
@@ -226,22 +222,12 @@ namespace DataSense
 
         private void betterListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            betterListBox1.TopIndex = betterListBox1.SelectedIndex;
-            if(betterListBox1.SelectedIndex >= 0)
+            lstDocList.TopIndex = lstDocList.SelectedIndex;
+            if(lstDocList.SelectedIndex >= 0)
             {
-                SelectedStatus = FilteredDocs[betterListBox1.SelectedIndex].Status;
+                lblSelectedDocNum.Text = FilteredDocs[lstDocList.SelectedIndex].DocNumber + " - Total days in circulation: " + SelectedStatus.Sum(u => u.Age);
                 BindStatusListBox();
             }
-
-        }
-
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
         }
 
@@ -297,49 +283,68 @@ namespace DataSense
                 int x = 0;
                 int y = (e.Index - lstGraph.TopIndex) * lstGraph.ItemHeight + (lstGraph.ItemHeight / 2);
 
-                foreach (sStatus stat in FilteredDocs[e.Index].Status)
+                foreach (sStatus stat in (lstGraph.Items[e.Index] as sDocument).Status)
                 {
-                    //e.Graphics.DrawString(stat.Age.ToString(), e.Font, p, stat.Age, y);
-
                     foreach(ColourStatus SC in StatusColours)
                     {
                         if (stat.Action.ToUpper() == (SC.Status.ToUpper()))
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age*width+2, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age*width, y);
                             break;
                         }
                         else if(stat.Action.ToUpper().Contains("TRA") && SC.Status == "TRA")
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age * width+2, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age * width, y);
                             break;
                         }
-
-
                     }
-                    x += stat.Age * width+2;
-
+                    x += stat.Age * width;
                 }
             }
-
+            lstGraph.HorizontalExtent = lstGraph.Items.Cast<sDocument>().Max(m => m.Status.Sum(u => u.Age)) * width + 10;
             e.DrawFocusRectangle();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            FilteredDocs = ConDocs.Where(w => w.DocNumber.ToUpper().Contains(textBox1.Text.ToUpper()) && !(w.DocNumber.ToUpper().Contains(textBox2.Text.ToUpper()))).ToList();
-            BindDocList();
+            try
+            {
+                Regex rgx = new Regex("(?i)" + textBox1.Text);
+                Regex rgx2 = new Regex("(?i)" + textBox2.Text);
+                FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber)).ToList();
+                BindDocList();
+            }
+            catch
+            {
+
+            }
+
         }
 
         private void lstGraph_SelectedIndexChanged(object sender, EventArgs e)
         {
-            betterListBox1.SelectedIndex = lstGraph.SelectedIndex;
+            if (lstDocList.Items.Count > 0 && lstGraph.SelectedIndex >= 0)
+            {
+                SelectedStatus = (lstGraph.SelectedItem as sDocument).Status;
+                lstDocList.SelectedIndex = lstGraph.SelectedIndex;                
+            }
+
             
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
-            FilteredDocs = ConDocs.Where(w => w.DocNumber.ToUpper().Contains(textBox1.Text.ToUpper()) && !(w.DocNumber.ToUpper().Contains(textBox2.Text.ToUpper()))).ToList();
-            BindDocList();
+            try
+            {
+                Regex rgx2 = new Regex("(?i)" + textBox2.Text);
+                Regex rgx = new Regex("(?i)" + textBox1.Text);
+                FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber)).ToList();
+                BindDocList();
+            }
+            catch
+            {
+
+            }
         }
 
         private void listBox1_DrawItem_1(object sender, DrawItemEventArgs e)
@@ -351,29 +356,59 @@ namespace DataSense
 
             string act = SelectedStatus[e.Index].Action;
 
-            Color bColour = StatusColours.Where(w => act.ToUpper().Contains(w.Status.ToUpper())
-            ).Select(s => s.Colour).First();
+            Color bColour;
 
-            using (Brush p = new SolidBrush(bColour))
+            if (StatusColours.Count > 0)
             {
-                if (SelectedStatus[e.Index].Age > 0)
+
+                if (act != "")
                 {
-                    e.Graphics.FillRectangle(p, 0, y, SelectedStatus[e.Index].Age * width, lstDocStats.ItemHeight);
+                    bColour = StatusColours.Skip(1).Where(w => act.ToUpper().Contains(w.Status.ToUpper())
+                    ).Select(s => s.Colour).First();
                 }
                 else
-                { 
-                    e.Graphics.FillRectangle(p, 0, y, width, lstDocStats.ItemHeight);
+                {
+                    bColour = StatusColours.Where(w => act.ToUpper().Contains(w.Status.ToUpper())
+                    ).Select(s => s.Colour).First();
+                }
+
+
+                using (Brush p = new SolidBrush(bColour))
+                {
+                    if (SelectedStatus[e.Index].Age > 0)
+                    {
+                        e.Graphics.FillRectangle(p, 0, y, SelectedStatus[e.Index].Age * width, lstDocStats.ItemHeight);
+                    }
+                    else
+                    {
+                        e.Graphics.FillRectangle(p, 0, y, width, lstDocStats.ItemHeight);
+                    }
+                }
+
+                using (Brush p = new SolidBrush(lstDocStats.ForeColor))
+                {
+
+                    float t1 = SelectedStatus.Max(m => e.Graphics.MeasureString(m.Age + " Days", lstDocStats.Font).Width);
+                    float t2 = SelectedStatus.Max(m => e.Graphics.MeasureString(m.Date.ToShortDateString(), lstDocStats.Font).Width);
+                    float t3 = SelectedStatus.Max(m => e.Graphics.MeasureString(m.Action, lstDocStats.Font).Width);
+                    float t4 = SelectedStatus.Max(m => e.Graphics.MeasureString(m.RevStatus, lstDocStats.Font).Width);
+
+
+                    float tab = 25;
+
+                    float[] tabs = { t1 + tab, t2 + tab, t3 + tab, t4 + tab, tab, tab, tab, tab, tab, tab, tab };
+
+                    StringFormat sf = new StringFormat();
+
+                    sf.SetTabStops(0, tabs);
+
+                    e.Graphics.DrawString(lstDocStats.Items[e.Index].ToString(),
+                    e.Font, p, e.Bounds, sf);
                 }
             }
+            //e.DrawFocusRectangle();
 
-            using (Brush p = new SolidBrush(lstDocStats.ForeColor))
-            {
-                e.Graphics.DrawString(lstDocStats.Items[e.Index].ToString(),
-                e.Font, p, e.Bounds, StringFormat.GenericDefault);
-            }
 
-            e.DrawFocusRectangle();
-            
 
         }
 
@@ -389,6 +424,14 @@ namespace DataSense
         public string DocTitle;
 
         public List<sStatus> Status = new List<sStatus>();
+
+        public string StatusList
+        {
+            get
+            {
+                return DocNumber + ":\t" + string.Join(", ", Status.Select(s => s.Action));
+            }
+        }
     }
 
     public class sStatus

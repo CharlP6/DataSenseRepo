@@ -29,12 +29,10 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.betterListBox1 = new DataSense.BetterListBox();
             this.btnLoadCSV = new System.Windows.Forms.Button();
             this.chHasHeaders = new System.Windows.Forms.CheckBox();
             this.OFD = new System.Windows.Forms.OpenFileDialog();
             this.btnAnalyse = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.lstStatus = new System.Windows.Forms.ListBox();
             this.btnColour = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
@@ -42,32 +40,27 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.lstDocStats = new System.Windows.Forms.ListBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.lblSelectedDocNum = new System.Windows.Forms.Label();
+            this.lstDocList = new DataSense.BetterListBox();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.betterListBox1);
+            this.groupBox1.Controls.Add(this.lstDocList);
             this.groupBox1.Location = new System.Drawing.Point(140, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(874, 279);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Headers";
-            // 
-            // betterListBox1
-            // 
-            this.betterListBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.betterListBox1.FormattingEnabled = true;
-            this.betterListBox1.Location = new System.Drawing.Point(6, 19);
-            this.betterListBox1.Name = "betterListBox1";
-            this.betterListBox1.Size = new System.Drawing.Size(862, 251);
-            this.betterListBox1.TabIndex = 6;
-            this.betterListBox1.Scroll += new DataSense.BetterListBox.BetterListBoxScrollDelegate(this.betterListBox1_Scroll);
-            this.betterListBox1.SelectedIndexChanged += new System.EventHandler(this.betterListBox1_SelectedIndexChanged);
             // 
             // btnLoadCSV
             // 
@@ -96,23 +89,13 @@
             // 
             // btnAnalyse
             // 
-            this.btnAnalyse.Location = new System.Drawing.Point(12, 64);
+            this.btnAnalyse.Location = new System.Drawing.Point(12, 98);
             this.btnAnalyse.Name = "btnAnalyse";
             this.btnAnalyse.Size = new System.Drawing.Size(75, 23);
             this.btnAnalyse.TabIndex = 4;
             this.btnAnalyse.Text = "Analyse";
             this.btnAnalyse.UseVisualStyleBackColor = true;
             this.btnAnalyse.Click += new System.EventHandler(this.btnAnalyse_Click);
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(12, 226);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // lstStatus
             // 
@@ -125,7 +108,6 @@
             this.lstStatus.Size = new System.Drawing.Size(163, 251);
             this.lstStatus.TabIndex = 7;
             this.lstStatus.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem);
-            this.lstStatus.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // btnColour
             // 
@@ -146,17 +128,18 @@
             this.lstGraph.BackColor = System.Drawing.Color.Gray;
             this.lstGraph.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lstGraph.FormattingEnabled = true;
+            this.lstGraph.HorizontalScrollbar = true;
             this.lstGraph.ItemHeight = 6;
-            this.lstGraph.Location = new System.Drawing.Point(12, 297);
+            this.lstGraph.Location = new System.Drawing.Point(3, 3);
             this.lstGraph.Name = "lstGraph";
-            this.lstGraph.Size = new System.Drawing.Size(878, 256);
+            this.lstGraph.Size = new System.Drawing.Size(778, 316);
             this.lstGraph.TabIndex = 9;
             this.lstGraph.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox2_DrawItem);
             this.lstGraph.SelectedIndexChanged += new System.EventHandler(this.lstGraph_SelectedIndexChanged);
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 169);
+            this.textBox1.Location = new System.Drawing.Point(13, 245);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(121, 20);
             this.textBox1.TabIndex = 10;
@@ -164,7 +147,7 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(12, 195);
+            this.textBox2.Location = new System.Drawing.Point(13, 271);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(121, 20);
             this.textBox2.TabIndex = 11;
@@ -172,30 +155,69 @@
             // 
             // lstDocStats
             // 
-            this.lstDocStats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lstDocStats.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstDocStats.BackColor = System.Drawing.Color.Gray;
+            this.lstDocStats.BackColor = System.Drawing.Color.White;
             this.lstDocStats.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lstDocStats.FormattingEnabled = true;
-            this.lstDocStats.Location = new System.Drawing.Point(896, 297);
+            this.lstDocStats.Location = new System.Drawing.Point(3, 29);
             this.lstDocStats.Name = "lstDocStats";
-            this.lstDocStats.Size = new System.Drawing.Size(288, 251);
+            this.lstDocStats.Size = new System.Drawing.Size(377, 290);
             this.lstDocStats.TabIndex = 12;
             this.lstDocStats.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem_1);
             this.lstDocStats.SelectedIndexChanged += new System.EventHandler(this.lstDocStats_SelectedIndexChanged);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer1.Location = new System.Drawing.Point(12, 297);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.lstGraph);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.lblSelectedDocNum);
+            this.splitContainer1.Panel2.Controls.Add(this.lstDocStats);
+            this.splitContainer1.Size = new System.Drawing.Size(1171, 331);
+            this.splitContainer1.SplitterDistance = 784;
+            this.splitContainer1.TabIndex = 13;
+            // 
+            // lblSelectedDocNum
+            // 
+            this.lblSelectedDocNum.AutoSize = true;
+            this.lblSelectedDocNum.Location = new System.Drawing.Point(4, 10);
+            this.lblSelectedDocNum.Name = "lblSelectedDocNum";
+            this.lblSelectedDocNum.Size = new System.Drawing.Size(0, 13);
+            this.lblSelectedDocNum.TabIndex = 13;
+            // 
+            // lstDocList
+            // 
+            this.lstDocList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lstDocList.FormattingEnabled = true;
+            this.lstDocList.Location = new System.Drawing.Point(6, 19);
+            this.lstDocList.Name = "lstDocList";
+            this.lstDocList.Size = new System.Drawing.Size(862, 251);
+            this.lstDocList.TabIndex = 6;
+            this.lstDocList.Scroll += new DataSense.BetterListBox.BetterListBoxScrollDelegate(this.betterListBox1_Scroll);
+            this.lstDocList.SelectedIndexChanged += new System.EventHandler(this.betterListBox1_SelectedIndexChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1195, 570);
-            this.Controls.Add(this.lstDocStats);
+            this.ClientSize = new System.Drawing.Size(1195, 640);
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.lstGraph);
             this.Controls.Add(this.btnColour);
             this.Controls.Add(this.lstStatus);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.btnAnalyse);
             this.Controls.Add(this.chHasHeaders);
             this.Controls.Add(this.btnLoadCSV);
@@ -203,6 +225,11 @@
             this.Name = "Form1";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -215,8 +242,7 @@
         private System.Windows.Forms.CheckBox chHasHeaders;
         private System.Windows.Forms.OpenFileDialog OFD;
         private System.Windows.Forms.Button btnAnalyse;
-        private System.Windows.Forms.Button button1;
-        private BetterListBox betterListBox1;
+        private BetterListBox lstDocList;
         private System.Windows.Forms.ListBox lstStatus;
         private System.Windows.Forms.Button btnColour;
         private System.Windows.Forms.ColorDialog colorDialog1;
@@ -224,6 +250,8 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.ListBox lstDocStats;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.Label lblSelectedDocNum;
     }
 }
 
