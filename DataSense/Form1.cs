@@ -36,56 +36,63 @@ namespace DataSense
 
         List<sStatus> SelectedStatus = new List<sStatus>();
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnLoadCSV_Click(object sender, EventArgs e)
         {
+
             Headers.Clear();
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                using (FileStream fs = new FileStream(OFD.FileName, FileMode.Open, FileAccess.ReadWrite))
+                foreach (string filename in OFD.FileNames)
                 {
-                    using (TextFieldParser parser = new TextFieldParser(fs))
+                    using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite))
                     {
-                        parser.TextFieldType = FieldType.Delimited;
-                        parser.SetDelimiters(",");
-
-                        string[] fields = parser.ReadFields();
-
-                        if (chHasHeaders.Checked)
+                        using (TextFieldParser parser = new TextFieldParser(fs))
                         {
-                            lstDocList.Items.Clear();
-                            Headers.AddRange(fields);
-                            lstDocList.Items.AddRange(Headers.ToArray());
-                        }
-                        while (!parser.EndOfData)
-                        {
-                            fields = parser.ReadFields();
+                            parser.TextFieldType = FieldType.Delimited;
+                            parser.SetDelimiters(",");
 
-                            DateTime ActDate;
+                            string[] fields = parser.ReadFields();
 
-                            DateTime.TryParse(fields[6], out ActDate);
-                            DocEntry DE = new DocEntry
+                            if (chHasHeaders.Checked)
                             {
-                                DocNumber = fields[0],
-                                DocTitle = fields[1],
-                                RevisionNum = fields[2],
-                                VersionNum = fields[3],
-                                DocStatus = fields[4],
-                                RevStatus = fields[5],
-                                ActionDate = ActDate,
-                                Action = fields[7]
-                            };
+                                lstDocList.Items.Clear();
+                                Headers.AddRange(fields);
+                                lstDocList.Items.AddRange(Headers.ToArray());
+                            }
+                            while (!parser.EndOfData)
+                            {
+                                fields = parser.ReadFields();
 
-                            DocEntries.Add(DE);
+                                DateTime ActDate;
+
+                                DateTime.TryParse(fields[6], out ActDate);
+                                DocEntry DE = new DocEntry
+                                {
+                                    DocNumber = fields[0],
+                                    DocTitle = fields[1],
+                                    RevisionNum = fields[2],
+                                    VersionNum = fields[3],
+                                    DocStatus = fields[4],
+                                    RevStatus = fields[5],
+                                    ActionDate = ActDate,
+                                    Action = fields[7]
+                                };
+
+                                DocEntries.Add(DE);
+                            }
                         }
                     }
                 }
             }
         }
 
-        private void btnAnalyse_Click(object sender, EventArgs e)
+        private void btnAnalyze_Click(object sender, EventArgs e)
         {
-            //betterListBox1.Items.Clear();
-
+            AnalyzeDocs();
+            btnAnalyze.Enabled = false;
+        }
+        void AnalyzeDocs()
+        {
             var GroupedDocs = DocEntries.GroupBy(g => g.DocNumber); //Group document list by doc number
 
             foreach (var Doc in GroupedDocs) //Loop through each group
@@ -97,6 +104,7 @@ namespace DataSense
 
                 int sAge = 0;
                 string act = "";
+
                 foreach (DocEntry item in Doc.OrderBy(o => o.ActionDate)) //Loop through each entry in current group
                 {
                     if (dTemp != DateTime.Parse("0001/01/01")) //If date is valid
@@ -109,14 +117,7 @@ namespace DataSense
                     }
 
                     dTemp = item.ActionDate; //Set temp date to current date
-
-                    ConsolidatedStatus.Age = sAge;
-                    ConsolidatedStatus.DocStatus = item.DocStatus;
-                    ConsolidatedStatus.RevisionNum = item.RevisionNum;
-                    ConsolidatedStatus.RevStatus = item.RevStatus; //set status helper status
-
-
-
+                    
                     if (item.Action == "")
                     {
                         act = item.RevStatus;
@@ -129,7 +130,8 @@ namespace DataSense
                     ConsolidatedStatus.Date = dTemp; //set status helper date
 
                     ConsolidatedDoc.Status.Add(new sStatus
-                    { Age = sAge,
+                    {
+                        Age = sAge,
                         RevStatus = item.RevStatus,
                         RevisionNum = item.RevisionNum,
                         Action = act,
@@ -160,12 +162,17 @@ namespace DataSense
 
             FilteredDocs = ConDocs;
 
-            BindDocList();
+            SetColours();
 
+            BindDocList();
+        }
+
+        void SetColours()
+        {
             StatusColours.Clear();
 
-            string[] Stats = { "CGC", "G5", "WP", "FOR REVIEW" };
-            Color[] Cols = { Color.Green, Color.Blue, Color.Red, Color.Cyan };
+            string[] Stats = { "CGC", "G5", "WP", "FOR REVIEW", "PLANNED" };
+            Color[] Cols = { Color.Green, Color.Blue, Color.Red, Color.Cyan, Color.White };
 
             List<string> uniqueStatus = DocEntries.Select(d => d.RevStatus).Distinct().ToList();
 
@@ -183,10 +190,13 @@ namespace DataSense
             BindColourList();
         }
 
+        #region Bind Listbox Data
+
         private void BindColourList()
         {
             lstStatus.DataSource = null;
-            lstStatus.DataSource = StatusColours.Select(s => s.Status).ToList();
+            lstStatus.DataSource = StatusColours.ToList();
+            lstStatus.DisplayMember = "Status";
             lstStatus.SelectedItems.Clear();
         }
 
@@ -205,14 +215,12 @@ namespace DataSense
 
         private void BindStatusListBox()
         {
+            lstDocStats.HorizontalExtent = 0;
             lstDocStats.DataSource = null;
             lstDocStats.DataSource = SelectedStatus.Select(s => s.Age + " days\t" + s.Date.ToShortDateString() + "\t" + s.Action + "\t" + s.RevStatus + "\t" + s.RevisionNum + " - " + s.DocStatus).ToList();
         }
 
-        void DrawLines(Graphics g, List<sDocument> Docs, int skip, int width, int DayLength)
-        {
-
-        }
+        #endregion
 
         private void betterListBox1_Scroll(object Sender, BetterListBox.BetterListBoxScrollArgs e)
         {
@@ -223,7 +231,8 @@ namespace DataSense
         private void betterListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             lstDocList.TopIndex = lstDocList.SelectedIndex;
-            if(lstDocList.SelectedIndex >= 0)
+            lstGraph.SelectedIndex = lstDocList.SelectedIndex;
+            if (lstDocList.SelectedIndex >= 0)
             {
                 lblSelectedDocNum.Text = FilteredDocs[lstDocList.SelectedIndex].DocNumber + " - Total days in circulation: " + SelectedStatus.Sum(u => u.Age);
                 BindStatusListBox();
@@ -242,12 +251,14 @@ namespace DataSense
                         StatusColours[i].Colour = colorDialog1.Color;
                     }
                     BindColourList();
+                    lstDocStats.Refresh();
+                    lstGraph.Refresh();
                 }
             }
 
         }
 
-        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
+        private void lstStatus_DrawItem(object sender, DrawItemEventArgs e)
         {
 
             e.DrawBackground();
@@ -264,14 +275,14 @@ namespace DataSense
             }
             using (Brush p = new SolidBrush(lstStatus.ForeColor))
             {
-                e.Graphics.DrawString(lstStatus.Items[e.Index].ToString(),
+                e.Graphics.DrawString((lstStatus.Items[e.Index] as ColourStatus).Status,
                 e.Font, p, e.Bounds, StringFormat.GenericDefault);
             }
 
             e.DrawFocusRectangle();
         }
 
-        private void listBox2_DrawItem(object sender, DrawItemEventArgs e)
+        private void lstGraph_DrawItem(object sender, DrawItemEventArgs e)
         {
 
             int width = 4;
@@ -285,16 +296,16 @@ namespace DataSense
 
                 foreach (sStatus stat in (lstGraph.Items[e.Index] as sDocument).Status)
                 {
-                    foreach(ColourStatus SC in StatusColours)
+                    foreach (ColourStatus SC in StatusColours)
                     {
                         if (stat.Action.ToUpper() == (SC.Status.ToUpper()))
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age*width, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight - 2), x, y, x + stat.Age * width, y);
                             break;
                         }
-                        else if(stat.Action.ToUpper().Contains("TRA") && SC.Status == "TRA")
+                        else if (stat.Action.ToUpper().Contains("TRA") && SC.Status == "TRA")
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight-2), x, y, x + stat.Age * width, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight - 2), x, y, x + stat.Age * width, y);
                             break;
                         }
                     }
@@ -305,47 +316,19 @@ namespace DataSense
             e.DrawFocusRectangle();
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                Regex rgx = new Regex("(?i)" + textBox1.Text);
-                Regex rgx2 = new Regex("(?i)" + textBox2.Text);
-                FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber)).ToList();
-                BindDocList();
-            }
-            catch
-            {
 
-            }
-
-        }
 
         private void lstGraph_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (lstDocList.Items.Count > 0 && lstGraph.SelectedIndex >= 0)
             {
                 SelectedStatus = (lstGraph.SelectedItem as sDocument).Status;
-                lstDocList.SelectedIndex = lstGraph.SelectedIndex;                
+                lstDocList.SelectedIndex = lstGraph.SelectedIndex;
             }
 
-            
+
         }
 
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                Regex rgx2 = new Regex("(?i)" + textBox2.Text);
-                Regex rgx = new Regex("(?i)" + textBox1.Text);
-                FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber)).ToList();
-                BindDocList();
-            }
-            catch
-            {
-
-            }
-        }
 
         private void listBox1_DrawItem_1(object sender, DrawItemEventArgs e)
         {
@@ -358,6 +341,7 @@ namespace DataSense
 
             Color bColour;
 
+            
             if (StatusColours.Count > 0)
             {
 
@@ -393,7 +377,6 @@ namespace DataSense
                     float t3 = SelectedStatus.Max(m => e.Graphics.MeasureString(m.Action, lstDocStats.Font).Width);
                     float t4 = SelectedStatus.Max(m => e.Graphics.MeasureString(m.RevStatus, lstDocStats.Font).Width);
 
-
                     float tab = 25;
 
                     float[] tabs = { t1 + tab, t2 + tab, t3 + tab, t4 + tab, tab, tab, tab, tab, tab, tab, tab };
@@ -404,18 +387,76 @@ namespace DataSense
 
                     e.Graphics.DrawString(lstDocStats.Items[e.Index].ToString(),
                     e.Font, p, e.Bounds, sf);
+
+                    float textLength = e.Graphics.MeasureString(lstDocStats.Items[e.Index].ToString(), e.Font, 0, sf).Width;
+
+                    if (lstDocStats.HorizontalExtent < textLength )
+                    {
+                        lstDocStats.HorizontalExtent = (int)textLength+5;
+                    }
                 }
             }
-            //e.DrawFocusRectangle();
-
-
-
+            if (lstDocStats.HorizontalExtent < SelectedStatus.Max(m => m.Age*width))
+            {
+                lstDocStats.HorizontalExtent = SelectedStatus.Max(m => m.Age * width)+5;
+            }
         }
 
-        private void lstDocStats_SelectedIndexChanged(object sender, EventArgs e)
+        #region Filter Docs
+
+        private void textBox1_Leave(object sender, EventArgs e)
         {
-
+            filterDocs();
         }
+
+        private void textBox2_Leave(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                label1.Focus();
+            }
+        }
+
+        private void textBox2_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                label1.Focus();
+            }
+        }
+
+        void filterDocs()
+        {
+            try
+            {
+                if (textBox2.Text != "")
+                {
+                    Regex rgx = new Regex("(?i)" + textBox1.Text);
+                    Regex rgx2 = new Regex("(?i)" + textBox2.Text);
+                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber)).ToList();
+                    BindDocList();
+                }
+                else
+                {
+                    Regex rgx = new Regex("(?i)" + textBox1.Text);
+                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber)).ToList();
+                    BindDocList();
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        #endregion
+
+
     }
 
     public class sDocument
@@ -469,7 +510,12 @@ namespace DataSense
 
     public class ColourStatus
     {
-        public string Status;
+        public string Status
+        { 
+            get;
+
+            set;
+        }
         public Color Colour;
 
         public ColourStatus(string status, Color colour)
