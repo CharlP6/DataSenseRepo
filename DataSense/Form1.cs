@@ -36,10 +36,8 @@ namespace DataSense
 
         List<sStatus> SelectedStatus = new List<sStatus>();
 
-        private void btnLoadCSV_Click(object sender, EventArgs e)
+        private void LoadCSV()
         {
-
-            Headers.Clear();
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 foreach (string filename in OFD.FileNames)
@@ -51,14 +49,8 @@ namespace DataSense
                             parser.TextFieldType = FieldType.Delimited;
                             parser.SetDelimiters(",");
 
-                            string[] fields = parser.ReadFields();
+                            string[] fields; // = parser.ReadFields();
 
-                            if (chHasHeaders.Checked)
-                            {
-                                lstDocList.Items.Clear();
-                                Headers.AddRange(fields);
-                                lstDocList.Items.AddRange(Headers.ToArray());
-                            }
                             while (!parser.EndOfData)
                             {
                                 fields = parser.ReadFields();
@@ -86,11 +78,7 @@ namespace DataSense
             }
         }
 
-        private void btnAnalyze_Click(object sender, EventArgs e)
-        {
-            AnalyzeDocs();
-            btnAnalyze.Enabled = false;
-        }
+
         void AnalyzeDocs()
         {
             var GroupedDocs = DocEntries.GroupBy(g => g.DocNumber); //Group document list by doc number
@@ -160,7 +148,7 @@ namespace DataSense
                 ConDocs.Add(ConsolidatedDoc);
             }
 
-            FilteredDocs = ConDocs;
+            FilteredDocs = ConDocs.OrderBy(o => o.DocNumber).ToList();
 
             SetColours();
 
@@ -300,12 +288,12 @@ namespace DataSense
                     {
                         if (stat.Action.ToUpper() == (SC.Status.ToUpper()))
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight - 2), x, y, x + stat.Age * width, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight - 3), x, y, x + stat.Age * width, y);
                             break;
                         }
                         else if (stat.Action.ToUpper().Contains("TRA") && SC.Status == "TRA")
                         {
-                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight - 2), x, y, x + stat.Age * width, y);
+                            e.Graphics.DrawLine(new Pen(SC.Colour, lstGraph.ItemHeight - 3), x, y, x + stat.Age * width, y);
                             break;
                         }
                     }
@@ -432,29 +420,67 @@ namespace DataSense
 
         void filterDocs()
         {
+
+            Regex rgxFormat;
+
+            if (checkBox1.Checked)
+            {
+                rgxFormat = new Regex(@"KIPP-\w{3}-\w{4}-\w{2}-\w{3}-");
+            }
+            else
+            {
+                rgxFormat = new Regex("");
+            }
+
             try
             {
                 if (textBox2.Text != "")
                 {
                     Regex rgx = new Regex("(?i)" + textBox1.Text);
                     Regex rgx2 = new Regex("(?i)" + textBox2.Text);
-                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber)).ToList();
+                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
                     BindDocList();
                 }
                 else
                 {
                     Regex rgx = new Regex("(?i)" + textBox1.Text);
-                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber)).ToList();
+                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
                     BindDocList();
                 }
             }
             catch
             {
-
+                try
+                {
+                    FilteredDocs = ConDocs.Where(w => rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                }
+                catch
+                {
+                    MessageBox.Show("Filter Error, no filter applied.");
+                }
             }
         }
 
         #endregion
+
+
+
+        private void openCSVsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadCSV();
+            analyzeToolStripMenuItem.Enabled = true;
+        }
+
+        private void analyzeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AnalyzeDocs();
+            analyzeToolStripMenuItem.Enabled = false;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
 
 
     }
@@ -470,7 +496,7 @@ namespace DataSense
         {
             get
             {
-                return DocNumber + ":\t" + string.Join(", ", Status.Select(s => s.Action));
+                return DocNumber + " - " + DocTitle + " - Age: " + Status.Sum(u => u.Age) + " days";
             }
         }
     }
@@ -572,6 +598,28 @@ namespace DataSense
                 get { return mTracking; }
             }
         }
+    }
+
+    [System.ComponentModel.DesignerCategory("Code")]
+    public class CustomPanel : Panel
+    {
+        public CustomPanel()
+        {
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.DoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            using (SolidBrush brush = new SolidBrush(BorderColour))
+            e.Graphics.DrawRectangle(new Pen(brush), 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+        }
+
+        public Color BorderColour
+        {
+            get;
+            set;
+        }
+
     }
 
 }
