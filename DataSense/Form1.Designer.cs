@@ -46,14 +46,14 @@
             this.openCSVsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.analyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.customPanel1 = new DataSense.CustomPanel();
+            this.radSortAge = new System.Windows.Forms.RadioButton();
+            this.radSortName = new System.Windows.Forms.RadioButton();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.lstDocList = new DataSense.BetterListBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label7 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -64,7 +64,6 @@
             this.splitContainer2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.customPanel1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // OFD
@@ -85,7 +84,7 @@
             this.lstStatus.Location = new System.Drawing.Point(1233, 29);
             this.lstStatus.Name = "lstStatus";
             this.lstStatus.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstStatus.Size = new System.Drawing.Size(175, 282);
+            this.lstStatus.Size = new System.Drawing.Size(175, 339);
             this.lstStatus.TabIndex = 7;
             this.lstStatus.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstStatus_DrawItem);
             // 
@@ -113,9 +112,9 @@
             this.lstGraph.HorizontalScrollbar = true;
             this.lstGraph.IntegralHeight = false;
             this.lstGraph.ItemHeight = 6;
-            this.lstGraph.Location = new System.Drawing.Point(11, 29);
+            this.lstGraph.Location = new System.Drawing.Point(1, 29);
             this.lstGraph.Name = "lstGraph";
-            this.lstGraph.Size = new System.Drawing.Size(933, 452);
+            this.lstGraph.Size = new System.Drawing.Size(943, 397);
             this.lstGraph.TabIndex = 9;
             this.lstGraph.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstGraph_DrawItem);
             this.lstGraph.SelectedIndexChanged += new System.EventHandler(this.lstGraph_SelectedIndexChanged);
@@ -133,7 +132,7 @@
             this.lstDocStats.IntegralHeight = false;
             this.lstDocStats.Location = new System.Drawing.Point(3, 29);
             this.lstDocStats.Name = "lstDocStats";
-            this.lstDocStats.Size = new System.Drawing.Size(471, 452);
+            this.lstDocStats.Size = new System.Drawing.Size(467, 397);
             this.lstDocStats.TabIndex = 12;
             this.lstDocStats.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem_1);
             // 
@@ -153,7 +152,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.lblSelectedDocNum);
             this.splitContainer1.Panel2.Controls.Add(this.lstDocStats);
-            this.splitContainer1.Size = new System.Drawing.Size(1424, 488);
+            this.splitContainer1.Size = new System.Drawing.Size(1424, 431);
             this.splitContainer1.SplitterDistance = 951;
             this.splitContainer1.SplitterWidth = 1;
             this.splitContainer1.TabIndex = 13;
@@ -164,9 +163,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(11, 3);
+            this.label3.Location = new System.Drawing.Point(1, 3);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(933, 23);
+            this.label3.Size = new System.Drawing.Size(943, 23);
             this.label3.TabIndex = 10;
             this.label3.Text = "Status Timeline Visualisation";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -178,9 +177,9 @@
             this.lblSelectedDocNum.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSelectedDocNum.Location = new System.Drawing.Point(3, 3);
             this.lblSelectedDocNum.Name = "lblSelectedDocNum";
-            this.lblSelectedDocNum.Size = new System.Drawing.Size(471, 23);
+            this.lblSelectedDocNum.Size = new System.Drawing.Size(464, 23);
             this.lblSelectedDocNum.TabIndex = 13;
-            this.lblSelectedDocNum.Text = "Selected doc:";
+            this.lblSelectedDocNum.Text = "Selected document";
             this.lblSelectedDocNum.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // splitContainer2
@@ -201,18 +200,19 @@
             this.splitContainer2.Panel1.Controls.Add(this.btnColour);
             this.splitContainer2.Panel1.Controls.Add(this.lstStatus);
             this.splitContainer2.Panel1.Controls.Add(this.label6);
-            this.splitContainer2.Panel1MinSize = 150;
+            this.splitContainer2.Panel1MinSize = 200;
             // 
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
             this.splitContainer2.Size = new System.Drawing.Size(1424, 807);
-            this.splitContainer2.SplitterDistance = 318;
+            this.splitContainer2.SplitterDistance = 375;
             this.splitContainer2.SplitterWidth = 1;
             this.splitContainer2.TabIndex = 14;
             // 
             // label5
             // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(972, 3);
             this.label5.Name = "label5";
@@ -223,6 +223,8 @@
             // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(11, 3);
             this.label4.Name = "label4";
@@ -233,6 +235,7 @@
             // 
             // label6
             // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(1233, 3);
             this.label6.Name = "label6";
@@ -243,6 +246,7 @@
             // 
             // menuStrip1
             // 
+            this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.analyzeToolStripMenuItem});
@@ -280,7 +284,8 @@
             this.customPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.customPanel1.BorderColour = System.Drawing.Color.LightGray;
-            this.customPanel1.Controls.Add(this.panel1);
+            this.customPanel1.Controls.Add(this.radSortAge);
+            this.customPanel1.Controls.Add(this.radSortName);
             this.customPanel1.Controls.Add(this.checkBox1);
             this.customPanel1.Controls.Add(this.label1);
             this.customPanel1.Controls.Add(this.label2);
@@ -288,13 +293,37 @@
             this.customPanel1.Controls.Add(this.textBox2);
             this.customPanel1.Location = new System.Drawing.Point(972, 29);
             this.customPanel1.Name = "customPanel1";
-            this.customPanel1.Size = new System.Drawing.Size(255, 282);
+            this.customPanel1.Size = new System.Drawing.Size(255, 339);
             this.customPanel1.TabIndex = 12;
+            // 
+            // radSortAge
+            // 
+            this.radSortAge.AutoSize = true;
+            this.radSortAge.Location = new System.Drawing.Point(6, 129);
+            this.radSortAge.Name = "radSortAge";
+            this.radSortAge.Size = new System.Drawing.Size(129, 17);
+            this.radSortAge.TabIndex = 17;
+            this.radSortAge.Text = "Sort by document age";
+            this.radSortAge.UseVisualStyleBackColor = true;
+            this.radSortAge.CheckedChanged += new System.EventHandler(this.radSortAge_CheckedChanged);
+            // 
+            // radSortName
+            // 
+            this.radSortName.AutoSize = true;
+            this.radSortName.Checked = true;
+            this.radSortName.Location = new System.Drawing.Point(6, 105);
+            this.radSortName.Name = "radSortName";
+            this.radSortName.Size = new System.Drawing.Size(146, 17);
+            this.radSortName.TabIndex = 16;
+            this.radSortName.TabStop = true;
+            this.radSortName.Text = "Sort by document number";
+            this.radSortName.UseVisualStyleBackColor = true;
+            this.radSortName.CheckedChanged += new System.EventHandler(this.radSortName_CheckedChanged);
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(6, 80);
+            this.checkBox1.Location = new System.Drawing.Point(6, 82);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(231, 17);
             this.checkBox1.TabIndex = 12;
@@ -305,7 +334,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 13);
+            this.label1.Location = new System.Drawing.Point(3, 15);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 13);
             this.label1.TabIndex = 7;
@@ -314,7 +343,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 42);
+            this.label2.Location = new System.Drawing.Point(3, 44);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(85, 13);
             this.label2.TabIndex = 7;
@@ -323,7 +352,7 @@
             // textBox1
             // 
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1.Location = new System.Drawing.Point(91, 11);
+            this.textBox1.Location = new System.Drawing.Point(91, 13);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(161, 20);
             this.textBox1.TabIndex = 10;
@@ -333,7 +362,7 @@
             // textBox2
             // 
             this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox2.Location = new System.Drawing.Point(91, 40);
+            this.textBox2.Location = new System.Drawing.Point(91, 42);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(161, 20);
             this.textBox2.TabIndex = 11;
@@ -349,29 +378,12 @@
             this.lstDocList.FormattingEnabled = true;
             this.lstDocList.HorizontalScrollbar = true;
             this.lstDocList.IntegralHeight = false;
-            this.lstDocList.Location = new System.Drawing.Point(11, 29);
+            this.lstDocList.Location = new System.Drawing.Point(1, 29);
             this.lstDocList.Name = "lstDocList";
-            this.lstDocList.Size = new System.Drawing.Size(955, 282);
+            this.lstDocList.Size = new System.Drawing.Size(965, 339);
             this.lstDocList.TabIndex = 6;
             this.lstDocList.Scroll += new DataSense.BetterListBox.BetterListBoxScrollDelegate(this.betterListBox1_Scroll);
             this.lstDocList.SelectedIndexChanged += new System.EventHandler(this.betterListBox1_SelectedIndexChanged);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Location = new System.Drawing.Point(4, 104);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(248, 61);
-            this.panel1.TabIndex = 13;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 9);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(199, 13);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "Company    -    Area    -    Disc    -    Type";
             // 
             // Form1
             // 
@@ -395,8 +407,6 @@
             this.menuStrip1.PerformLayout();
             this.customPanel1.ResumeLayout(false);
             this.customPanel1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -428,8 +438,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.RadioButton radSortAge;
+        private System.Windows.Forms.RadioButton radSortName;
     }
 }
 

@@ -49,7 +49,7 @@ namespace DataSense
                             parser.TextFieldType = FieldType.Delimited;
                             parser.SetDelimiters(",");
 
-                            string[] fields; // = parser.ReadFields();
+                            string[] fields = parser.ReadFields();
 
                             while (!parser.EndOfData)
                             {
@@ -418,6 +418,21 @@ namespace DataSense
             }
         }
 
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void radSortName_CheckedChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void radSortAge_CheckedChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
         void filterDocs()
         {
 
@@ -438,13 +453,29 @@ namespace DataSense
                 {
                     Regex rgx = new Regex("(?i)" + textBox1.Text);
                     Regex rgx2 = new Regex("(?i)" + textBox2.Text);
-                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                    if (radSortName.Checked)
+                    {
+                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                    }
+                    else
+                    {
+                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.Status.Sum(u => u.Age)).ToList();
+                    }
+
                     BindDocList();
                 }
                 else
                 {
                     Regex rgx = new Regex("(?i)" + textBox1.Text);
-                    FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                    if (radSortName.Checked)
+                    {
+                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                    }
+                    else
+                    {
+                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.Status.Sum(u => u.Age)).ToList();
+                    }
+
                     BindDocList();
                 }
             }
@@ -452,7 +483,15 @@ namespace DataSense
             {
                 try
                 {
-                    FilteredDocs = ConDocs.Where(w => rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                    if (radSortName.Checked)
+                    {
+                        FilteredDocs = ConDocs.Where(w => rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
+                    }
+                    else
+                    {
+                        FilteredDocs = ConDocs.Where(w => rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.Status.Sum(u => u.Age)).ToList();
+                    }
+
                 }
                 catch
                 {
@@ -477,10 +516,7 @@ namespace DataSense
             analyzeToolStripMenuItem.Enabled = false;
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            filterDocs();
-        }
+
 
 
     }
