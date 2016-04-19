@@ -17,11 +17,32 @@ using ExtensionMethods;
 
 namespace DataSense
 {
+        [System.ComponentModel.DesignerCategory("Code")]
     public partial class Form1 : Form
     {
+
+
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private Color bCol = Color.Black;
+
+        [Browsable(true),
+        EditorBrowsable(EditorBrowsableState.Always),
+        Description("Custom Border Colour"),
+        Category("Custom")]
+        public Color BorderColour
+        {
+            get
+            {
+                return bCol;
+            }
+            set
+            {
+                bCol = value;
+            }
         }
 
         List<string> Headers = new List<string>();
@@ -93,62 +114,75 @@ namespace DataSense
                 int sAge = 0;
                 string act = "";
 
-                foreach (DocEntry item in Doc.OrderBy(o => o.ActionDate)) //Loop through each entry in current group
-                {
-                    if (dTemp != DateTime.Parse("0001/01/01")) //If date is valid
+                List<DocEntry> tempEntry = Doc.OrderBy(o => o.ActionDate).ToList();
+
+                for (int i = 0; i < tempEntry.Count; i++)
+                {                    
+                    if (i < tempEntry.Count-1)
                     {
-                        sAge = (item.ActionDate - dTemp).Days; //Subtract previous date from current entry date
+                        if (tempEntry[i].ActionDate == DateTime.Parse("0001/01/01"))
+                        {
+                            sAge = 0;
+                        }
+                        else
+                        {
+                            sAge = (tempEntry[i + 1].ActionDate - tempEntry[i].ActionDate).Days;
+                        }
                     }
                     else
                     {
-                        sAge = 0;
+                        if (tempEntry[i].ActionDate == DateTime.Parse("0001/01/01"))
+                        {
+                            sAge = 0;
+                        }
+                        else
+                        {
+                            sAge = (DateTime.Today - tempEntry[i].ActionDate).Days;
+                            if (sAge < 0) sAge = 0;
+                        }
                     }
 
-                    dTemp = item.ActionDate; //Set temp date to current date
-                    
-                    if (item.Action == "")
+                    if (tempEntry[i].Action == "")
                     {
-                        act = item.RevStatus;
+                        act = tempEntry[i].RevStatus;
                     }
                     else
                     {
-                        act = item.Action;
+                        act = tempEntry[i].Action;
                     }
-
-                    ConsolidatedStatus.Date = dTemp; //set status helper date
 
                     ConsolidatedDoc.Status.Add(new sStatus
                     {
                         Age = sAge,
-                        RevStatus = item.RevStatus,
-                        RevisionNum = item.RevisionNum,
                         Action = act,
-                        DocStatus = item.DocStatus,
-                        Date = item.ActionDate
+                        Date = tempEntry[i].ActionDate,
+                        RevisionNum = tempEntry[i].RevisionNum,
+                        RevStatus = tempEntry[i].RevStatus,
+                        DocStatus = tempEntry[i].DocStatus,
                     });
 
-                    ConsolidatedDoc.DocTitle = item.DocTitle;
                 }
 
-                if (dTemp != DateTime.Parse("0001/01/01") && dTemp <= DateTime.Today) //Subtract last date from today
-                {
-                    sAge = (DateTime.Today - dTemp).Days;
-                }
-                else
-                {
-                    sAge = 0;
-                }
-
-                ConsolidatedStatus.Age = sAge;
-                ConsolidatedStatus.Action = act;
-
-                ConsolidatedDoc.Status.Add(ConsolidatedStatus);
                 ConsolidatedDoc.DocNumber = Doc.Key;
+                ConsolidatedDoc.DocTitle = tempEntry[0].DocTitle;
 
                 ConDocs.Add(ConsolidatedDoc);
             }
 
             FilteredDocs = ConDocs.OrderBy(o => o.DocNumber).ToList();
+
+            Regex rgxCombos = new Regex(@"KIPP-\w{3}-\w{4}-\w{2}-\w{3}-");
+
+            List<sDocument> tDocs = ConDocs.Where(w => rgxCombos.IsMatch(w.DocNumber)).ToList();
+
+            cmbCoyFilter.Items.Clear();
+            cmbCoyFilter.Items.AddRange(tDocs.Select(s => s.DocNumber.Split('-')[1]).Distinct().ToArray());
+
+            cmbDiscFilter.Items.Clear();
+            cmbDiscFilter.Items.AddRange(tDocs.Select(s => s.DocNumber.Split('-')[3]).Distinct().ToArray());
+
+            cmbTypeFilter.Items.Clear();
+            cmbTypeFilter.Items.AddRange(tDocs.Select(s => s.DocNumber.Split('-')[4]).Distinct().ToArray());
 
             SetColours();
 
@@ -186,6 +220,10 @@ namespace DataSense
             lstStatus.DataSource = StatusColours.ToList();
             lstStatus.DisplayMember = "Status";
             lstStatus.SelectedItems.Clear();
+
+            cmbStatusFilter.DataSource = null;
+            cmbStatusFilter.DataSource = StatusColours.Select(s => s.Status).ToList();
+
         }
 
         private void BindDocList()
@@ -206,6 +244,7 @@ namespace DataSense
             lstDocStats.HorizontalExtent = 0;
             lstDocStats.DataSource = null;
             lstDocStats.DataSource = SelectedStatus.Select(s => s.Age + " days\t" + s.Date.ToShortDateString() + "\t" + s.Action + "\t" + s.RevStatus + "\t" + s.RevisionNum + " - " + s.DocStatus).ToList();
+
         }
 
         #endregion
@@ -218,7 +257,7 @@ namespace DataSense
 
         private void betterListBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            lstDocList.TopIndex = lstDocList.SelectedIndex;
+            //lstDocList.TopIndex = lstDocList.SelectedIndex;
             lstGraph.SelectedIndex = lstDocList.SelectedIndex;
             if (lstDocList.SelectedIndex >= 0)
             {
@@ -420,6 +459,7 @@ namespace DataSense
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
+            panelADV.Enabled = checkBox1.Checked;
             filterDocs();
         }
 
@@ -435,69 +475,63 @@ namespace DataSense
 
         void filterDocs()
         {
+            IEnumerable<sDocument> eFilter = ConDocs.Select(s => s);
 
+            Regex filterInclude = new Regex("(?i)" + txtFilterInclude.Text);
+            Regex filterExclude = new Regex("(?i)" + txtFilterExclude.Text);
             Regex rgxFormat;
 
-            if (checkBox1.Checked)
-            {
-                rgxFormat = new Regex(@"KIPP-\w{3}-\w{4}-\w{2}-\w{3}-");
-            }
-            else
-            {
-                rgxFormat = new Regex("");
-            }
+            if (checkBox1.Checked) rgxFormat = new Regex(@"KIPP-" + cmbCoyFilter + @"-\w{4}-" + cmbDiscFilter.SelectedIndex + "-" + cmbTypeFilter.SelectedText);
+            else rgxFormat = new Regex("");            
 
             try
             {
-                if (textBox2.Text != "")
+                if (txtFilterExclude.Text != "")
                 {
-                    Regex rgx = new Regex("(?i)" + textBox1.Text);
-                    Regex rgx2 = new Regex("(?i)" + textBox2.Text);
-                    if (radSortName.Checked)
-                    {
-                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
-                    }
-                    else
-                    {
-                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && !rgx2.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.Status.Sum(u => u.Age)).ToList();
-                    }
-
-                    BindDocList();
+                    eFilter = ConDocs.Where(w => filterInclude.IsMatch(w.DocNumber) && !filterExclude.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber);
                 }
                 else
                 {
-                    Regex rgx = new Regex("(?i)" + textBox1.Text);
-                    if (radSortName.Checked)
-                    {
-                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
-                    }
-                    else
-                    {
-                        FilteredDocs = ConDocs.Where(w => rgx.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.Status.Sum(u => u.Age)).ToList();
-                    }
+                    eFilter = ConDocs.Where(w => filterInclude.IsMatch(w.DocNumber) && rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber);
+                }
 
-                    BindDocList();
+                if (chkStatusFilter.Checked)
+                {
+
+                    eFilter = eFilter.Where(w => Regex.IsMatch(w.Status.Last().Action, cmbStatusFilter.Text));
+
+                    if (txtFilterAge.Text != "")
+                    {
+                        try
+                        {
+                            int Age;
+                            int.TryParse(txtFilterAge.Text, out Age);
+                            eFilter = eFilter.Where(w => w.Status.Last().Age >= Age);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+
+                if(radSortAge.Checked)
+                {
+                    eFilter = eFilter.OrderBy(o => o.Status.Sum(u => u.Age));
+                }
+                else
+                {
+                    eFilter = eFilter.OrderBy(o => o.DocNumber);
                 }
             }
             catch
             {
-                try
-                {
-                    if (radSortName.Checked)
-                    {
-                        FilteredDocs = ConDocs.Where(w => rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.DocNumber).ToList();
-                    }
-                    else
-                    {
-                        FilteredDocs = ConDocs.Where(w => rgxFormat.IsMatch(w.DocNumber)).OrderBy(o => o.Status.Sum(u => u.Age)).ToList();
-                    }
 
-                }
-                catch
-                {
-                    MessageBox.Show("Filter Error, no filter applied.");
-                }
             }
+
+            FilteredDocs = eFilter.ToList();
+            BindDocList();
+
         }
 
         #endregion
@@ -514,6 +548,49 @@ namespace DataSense
         {
             AnalyzeDocs();
             analyzeToolStripMenuItem.Enabled = false;
+        }
+
+        private void cmbStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void txtFilterAge_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtFilterAge_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Enter)
+            {
+                filterDocs();
+            }
+        }
+
+        private void txtFilterAge_Leave(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void chkStatusFilter_CheckedChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void cmbCoyFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void cmbDiscFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void cmbTypeFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
         }
 
 
@@ -655,6 +732,8 @@ namespace DataSense
             get;
             set;
         }
+
+
 
     }
 
