@@ -40,13 +40,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.lblSelectedDocNum = new System.Windows.Forms.Label();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openCSVsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.analyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.customPanel1 = new DataSense.CustomPanel();
             this.panelADV = new System.Windows.Forms.Panel();
             this.label11 = new System.Windows.Forms.Label();
@@ -68,7 +61,15 @@
             this.label2 = new System.Windows.Forms.Label();
             this.txtFilterInclude = new System.Windows.Forms.TextBox();
             this.txtFilterExclude = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.lstDocList = new DataSense.BetterListBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openCSVsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.analyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -77,10 +78,10 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             this.customPanel1.SuspendLayout();
             this.panelADV.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // OFD
@@ -131,7 +132,7 @@
             this.lstGraph.ItemHeight = 6;
             this.lstGraph.Location = new System.Drawing.Point(1, 29);
             this.lstGraph.Name = "lstGraph";
-            this.lstGraph.Size = new System.Drawing.Size(882, 380);
+            this.lstGraph.Size = new System.Drawing.Size(882, 377);
             this.lstGraph.TabIndex = 9;
             this.lstGraph.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstGraph_DrawItem);
             this.lstGraph.SelectedIndexChanged += new System.EventHandler(this.lstGraph_SelectedIndexChanged);
@@ -149,7 +150,7 @@
             this.lstDocStats.IntegralHeight = false;
             this.lstDocStats.Location = new System.Drawing.Point(3, 29);
             this.lstDocStats.Name = "lstDocStats";
-            this.lstDocStats.Size = new System.Drawing.Size(462, 380);
+            this.lstDocStats.Size = new System.Drawing.Size(468, 377);
             this.lstDocStats.TabIndex = 12;
             this.lstDocStats.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem_1);
             // 
@@ -169,9 +170,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.lblSelectedDocNum);
             this.splitContainer1.Panel2.Controls.Add(this.lstDocStats);
-            this.splitContainer1.Size = new System.Drawing.Size(1319, 414);
+            this.splitContainer1.Size = new System.Drawing.Size(1319, 411);
             this.splitContainer1.SplitterDistance = 890;
-            this.splitContainer1.SplitterWidth = 1;
             this.splitContainer1.TabIndex = 13;
             // 
             // label3
@@ -194,7 +194,7 @@
             this.lblSelectedDocNum.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSelectedDocNum.Location = new System.Drawing.Point(3, 3);
             this.lblSelectedDocNum.Name = "lblSelectedDocNum";
-            this.lblSelectedDocNum.Size = new System.Drawing.Size(462, 23);
+            this.lblSelectedDocNum.Size = new System.Drawing.Size(468, 23);
             this.lblSelectedDocNum.TabIndex = 13;
             this.lblSelectedDocNum.Text = "Selected document";
             this.lblSelectedDocNum.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -224,77 +224,7 @@
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
             this.splitContainer2.Size = new System.Drawing.Size(1319, 807);
             this.splitContainer2.SplitterDistance = 392;
-            this.splitContainer2.SplitterWidth = 1;
             this.splitContainer2.TabIndex = 14;
-            // 
-            // label5
-            // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(867, 3);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(255, 23);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "Sort and Filter";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label4
-            // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(11, 3);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(794, 23);
-            this.label4.TabIndex = 10;
-            this.label4.Text = "Document List";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(1128, 3);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(146, 23);
-            this.label6.TabIndex = 10;
-            this.label6.Text = "Status Colours";
-            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.analyzeToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1319, 24);
-            this.menuStrip1.TabIndex = 15;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openCSVsToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // openCSVsToolStripMenuItem
-            // 
-            this.openCSVsToolStripMenuItem.Name = "openCSVsToolStripMenuItem";
-            this.openCSVsToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.openCSVsToolStripMenuItem.Text = "Open CSVs";
-            this.openCSVsToolStripMenuItem.Click += new System.EventHandler(this.openCSVsToolStripMenuItem_Click);
-            // 
-            // analyzeToolStripMenuItem
-            // 
-            this.analyzeToolStripMenuItem.Enabled = false;
-            this.analyzeToolStripMenuItem.Name = "analyzeToolStripMenuItem";
-            this.analyzeToolStripMenuItem.Size = new System.Drawing.Size(60, 20);
-            this.analyzeToolStripMenuItem.Text = "Analyze";
-            this.analyzeToolStripMenuItem.Click += new System.EventHandler(this.analyzeToolStripMenuItem_Click);
             // 
             // customPanel1
             // 
@@ -519,6 +449,29 @@
             this.txtFilterExclude.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox2_KeyDown);
             this.txtFilterExclude.Leave += new System.EventHandler(this.textBox2_Leave);
             // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(867, 3);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(255, 23);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "Sort and Filter";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(11, 3);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(794, 23);
+            this.label4.TabIndex = 10;
+            this.label4.Text = "Document List";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // lstDocList
             // 
             this.lstDocList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -534,6 +487,60 @@
             this.lstDocList.TabIndex = 6;
             this.lstDocList.Scroll += new DataSense.BetterListBox.BetterListBoxScrollDelegate(this.betterListBox1_Scroll);
             this.lstDocList.SelectedIndexChanged += new System.EventHandler(this.betterListBox1_SelectedIndexChanged);
+            // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(1128, 3);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(146, 23);
+            this.label6.TabIndex = 10;
+            this.label6.Text = "Status Colours";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.analyzeToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1319, 24);
+            this.menuStrip1.TabIndex = 15;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openCSVsToolStripMenuItem,
+            this.clearDataToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // openCSVsToolStripMenuItem
+            // 
+            this.openCSVsToolStripMenuItem.Name = "openCSVsToolStripMenuItem";
+            this.openCSVsToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.openCSVsToolStripMenuItem.Text = "Open CSVs";
+            this.openCSVsToolStripMenuItem.Click += new System.EventHandler(this.openCSVsToolStripMenuItem_Click);
+            // 
+            // clearDataToolStripMenuItem
+            // 
+            this.clearDataToolStripMenuItem.Name = "clearDataToolStripMenuItem";
+            this.clearDataToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.clearDataToolStripMenuItem.Text = "Clear Data";
+            this.clearDataToolStripMenuItem.Click += new System.EventHandler(this.clearDataToolStripMenuItem_Click);
+            // 
+            // analyzeToolStripMenuItem
+            // 
+            this.analyzeToolStripMenuItem.Enabled = false;
+            this.analyzeToolStripMenuItem.Name = "analyzeToolStripMenuItem";
+            this.analyzeToolStripMenuItem.Size = new System.Drawing.Size(60, 20);
+            this.analyzeToolStripMenuItem.Text = "Analyze";
+            this.analyzeToolStripMenuItem.Click += new System.EventHandler(this.analyzeToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -553,14 +560,14 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.customPanel1.ResumeLayout(false);
             this.customPanel1.PerformLayout();
             this.panelADV.ResumeLayout(false);
             this.panelADV.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -607,6 +614,7 @@
         private System.Windows.Forms.ComboBox cmbTypeFilter;
         private System.Windows.Forms.ComboBox cmbDiscFilter;
         private System.Windows.Forms.ComboBox cmbCoyFilter;
+        private System.Windows.Forms.ToolStripMenuItem clearDataToolStripMenuItem;
     }
 }
 

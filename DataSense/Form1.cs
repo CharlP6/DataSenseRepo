@@ -58,7 +58,7 @@ namespace DataSense
         List<sStatus> SelectedStatus = new List<sStatus>();
 
         private void LoadCSV()
-        {
+        {            
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 foreach (string filename in OFD.FileNames)
@@ -70,7 +70,15 @@ namespace DataSense
                             parser.TextFieldType = FieldType.Delimited;
                             parser.SetDelimiters(",");
 
+                            //try
+                            //{
                             string[] fields = parser.ReadFields();
+
+                            if (fields.Length != 8)
+                            {
+                                MessageBox.Show("Please load a valid CSV with 8 columns");
+                                return;
+                            }
 
                             while (!parser.EndOfData)
                             {
@@ -93,10 +101,17 @@ namespace DataSense
 
                                 DocEntries.Add(DE);
                             }
+                            //}
+                            //catch
+                            //{
+                            //    MessageBox.Show("Please load a valid CSV with 8 columns");
+                            //    return;
+                            //}
                         }
                     }
                 }
             }
+            analyzeToolStripMenuItem.Enabled = true;
         }
 
 
@@ -177,12 +192,15 @@ namespace DataSense
 
             cmbCoyFilter.Items.Clear();
             cmbCoyFilter.Items.AddRange(tDocs.Select(s => s.DocNumber.Split('-')[1]).Distinct().ToArray());
+            cmbCoyFilter.Items.Add("");
 
             cmbDiscFilter.Items.Clear();
             cmbDiscFilter.Items.AddRange(tDocs.Select(s => s.DocNumber.Split('-')[3]).Distinct().ToArray());
+            cmbDiscFilter.Items.Add("");
 
             cmbTypeFilter.Items.Clear();
             cmbTypeFilter.Items.AddRange(tDocs.Select(s => s.DocNumber.Split('-')[4]).Distinct().ToArray());
+            cmbTypeFilter.Items.Add("");
 
             SetColours();
 
@@ -473,6 +491,49 @@ namespace DataSense
             filterDocs();
         }
 
+        private void cmbStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void txtFilterAge_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtFilterAge_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                filterDocs();
+            }
+        }
+
+        private void txtFilterAge_Leave(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void chkStatusFilter_CheckedChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void cmbCoyFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void cmbDiscFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
+        private void cmbTypeFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filterDocs();
+        }
+
         void filterDocs()
         {
             IEnumerable<sDocument> eFilter = ConDocs.Select(s => s);
@@ -481,7 +542,11 @@ namespace DataSense
             Regex filterExclude = new Regex("(?i)" + txtFilterExclude.Text);
             Regex rgxFormat;
 
-            if (checkBox1.Checked) rgxFormat = new Regex(@"KIPP-" + cmbCoyFilter + @"-\w{4}-" + cmbDiscFilter.SelectedIndex + "-" + cmbTypeFilter.SelectedText);
+            string coyFilter = (cmbCoyFilter.Text != "") ? cmbCoyFilter.Text : @"\w{3}";
+            string discFilter = (cmbDiscFilter.Text != "") ? cmbDiscFilter.Text : @"\w{2}"; ;
+            string typeFilter = (cmbTypeFilter.Text != "") ? cmbTypeFilter.Text : @"\w{3}"; ;
+
+            if (checkBox1.Checked) rgxFormat = new Regex(@"KIPP-" + coyFilter + @"-\w{4}-" + discFilter + "-" + typeFilter);
             else rgxFormat = new Regex("");            
 
             try
@@ -536,12 +601,10 @@ namespace DataSense
 
         #endregion
 
-
-
         private void openCSVsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadCSV();
-            analyzeToolStripMenuItem.Enabled = true;
+
         }
 
         private void analyzeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -550,52 +613,10 @@ namespace DataSense
             analyzeToolStripMenuItem.Enabled = false;
         }
 
-        private void cmbStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+        private void clearDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            filterDocs();
+            DocEntries.Clear();
         }
-
-        private void txtFilterAge_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtFilterAge_KeyDown(object sender, KeyEventArgs e)
-        {
-            if(e.KeyCode == Keys.Enter)
-            {
-                filterDocs();
-            }
-        }
-
-        private void txtFilterAge_Leave(object sender, EventArgs e)
-        {
-            filterDocs();
-        }
-
-        private void chkStatusFilter_CheckedChanged(object sender, EventArgs e)
-        {
-            filterDocs();
-        }
-
-        private void cmbCoyFilter_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            filterDocs();
-        }
-
-        private void cmbDiscFilter_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            filterDocs();
-        }
-
-        private void cmbTypeFilter_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            filterDocs();
-        }
-
-
-
-
     }
 
     public class sDocument
