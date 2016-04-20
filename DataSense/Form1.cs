@@ -17,7 +17,9 @@ using ExtensionMethods;
 
 namespace DataSense
 {
-        [System.ComponentModel.DesignerCategory("Code")]
+
+
+    [System.ComponentModel.DesignerCategory("Code")]
     public partial class Form1 : Form
     {
 
