@@ -165,7 +165,15 @@ namespace DataSense
                     }
                     else
                     {
-                        act = tempEntry[i].Action;
+                        if(!(tempEntry [i].Action.ToUpper().Contains("TRA")))
+                        {
+                            act = "TRA";
+                        }
+                        else
+                        {
+                            act = tempEntry[i].Action;
+                        }
+
                     }
 
                     ConsolidatedDoc.Status.Add(new sStatus

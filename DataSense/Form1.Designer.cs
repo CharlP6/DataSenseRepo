@@ -150,7 +150,7 @@
             this.lstDocStats.IntegralHeight = false;
             this.lstDocStats.Location = new System.Drawing.Point(3, 29);
             this.lstDocStats.Name = "lstDocStats";
-            this.lstDocStats.Size = new System.Drawing.Size(468, 377);
+            this.lstDocStats.Size = new System.Drawing.Size(420, 377);
             this.lstDocStats.TabIndex = 12;
             this.lstDocStats.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem_1);
             // 
