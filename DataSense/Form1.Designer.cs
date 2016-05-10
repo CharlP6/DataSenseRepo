@@ -38,6 +38,7 @@
             this.lstDocStats = new System.Windows.Forms.ListBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label3 = new System.Windows.Forms.Label();
+            this.btnExport = new System.Windows.Forms.Button();
             this.lblSelectedDocNum = new System.Windows.Forms.Label();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.customPanel1 = new DataSense.CustomPanel();
@@ -70,6 +71,7 @@
             this.openCSVsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearDataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.analyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -99,7 +101,7 @@
             this.lstStatus.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lstStatus.FormattingEnabled = true;
             this.lstStatus.IntegralHeight = false;
-            this.lstStatus.Location = new System.Drawing.Point(1128, 29);
+            this.lstStatus.Location = new System.Drawing.Point(1149, 29);
             this.lstStatus.Name = "lstStatus";
             this.lstStatus.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lstStatus.Size = new System.Drawing.Size(175, 356);
@@ -111,7 +113,7 @@
             this.btnColour.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnColour.BackColor = System.Drawing.SystemColors.Control;
             this.btnColour.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnColour.Location = new System.Drawing.Point(1280, 3);
+            this.btnColour.Location = new System.Drawing.Point(1301, 3);
             this.btnColour.Name = "btnColour";
             this.btnColour.Size = new System.Drawing.Size(23, 23);
             this.btnColour.TabIndex = 8;
@@ -132,7 +134,7 @@
             this.lstGraph.ItemHeight = 6;
             this.lstGraph.Location = new System.Drawing.Point(1, 29);
             this.lstGraph.Name = "lstGraph";
-            this.lstGraph.Size = new System.Drawing.Size(882, 377);
+            this.lstGraph.Size = new System.Drawing.Size(896, 377);
             this.lstGraph.TabIndex = 9;
             this.lstGraph.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstGraph_DrawItem);
             this.lstGraph.SelectedIndexChanged += new System.EventHandler(this.lstGraph_SelectedIndexChanged);
@@ -150,7 +152,7 @@
             this.lstDocStats.IntegralHeight = false;
             this.lstDocStats.Location = new System.Drawing.Point(3, 29);
             this.lstDocStats.Name = "lstDocStats";
-            this.lstDocStats.Size = new System.Drawing.Size(420, 377);
+            this.lstDocStats.Size = new System.Drawing.Size(424, 347);
             this.lstDocStats.TabIndex = 12;
             this.lstDocStats.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem_1);
             // 
@@ -168,10 +170,11 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.btnExport);
             this.splitContainer1.Panel2.Controls.Add(this.lblSelectedDocNum);
             this.splitContainer1.Panel2.Controls.Add(this.lstDocStats);
-            this.splitContainer1.Size = new System.Drawing.Size(1319, 411);
-            this.splitContainer1.SplitterDistance = 890;
+            this.splitContainer1.Size = new System.Drawing.Size(1340, 411);
+            this.splitContainer1.SplitterDistance = 904;
             this.splitContainer1.TabIndex = 13;
             // 
             // label3
@@ -182,10 +185,20 @@
             this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(1, 3);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(882, 23);
+            this.label3.Size = new System.Drawing.Size(896, 23);
             this.label3.TabIndex = 10;
             this.label3.Text = "Status Timeline Visualisation";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // btnExport
+            // 
+            this.btnExport.Location = new System.Drawing.Point(352, 381);
+            this.btnExport.Name = "btnExport";
+            this.btnExport.Size = new System.Drawing.Size(75, 23);
+            this.btnExport.TabIndex = 14;
+            this.btnExport.Text = "Copy List";
+            this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // lblSelectedDocNum
             // 
@@ -194,7 +207,7 @@
             this.lblSelectedDocNum.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblSelectedDocNum.Location = new System.Drawing.Point(3, 3);
             this.lblSelectedDocNum.Name = "lblSelectedDocNum";
-            this.lblSelectedDocNum.Size = new System.Drawing.Size(468, 23);
+            this.lblSelectedDocNum.Size = new System.Drawing.Size(424, 23);
             this.lblSelectedDocNum.TabIndex = 13;
             this.lblSelectedDocNum.Text = "Selected document";
             this.lblSelectedDocNum.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -222,7 +235,7 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer1);
-            this.splitContainer2.Size = new System.Drawing.Size(1319, 807);
+            this.splitContainer2.Size = new System.Drawing.Size(1340, 807);
             this.splitContainer2.SplitterDistance = 392;
             this.splitContainer2.TabIndex = 14;
             // 
@@ -240,7 +253,7 @@
             this.customPanel1.Controls.Add(this.label2);
             this.customPanel1.Controls.Add(this.txtFilterInclude);
             this.customPanel1.Controls.Add(this.txtFilterExclude);
-            this.customPanel1.Location = new System.Drawing.Point(867, 29);
+            this.customPanel1.Location = new System.Drawing.Point(888, 29);
             this.customPanel1.Name = "customPanel1";
             this.customPanel1.Size = new System.Drawing.Size(255, 356);
             this.customPanel1.TabIndex = 12;
@@ -446,6 +459,7 @@
             this.txtFilterExclude.Name = "txtFilterExclude";
             this.txtFilterExclude.Size = new System.Drawing.Size(161, 20);
             this.txtFilterExclude.TabIndex = 11;
+            this.txtFilterExclude.Text = "crs";
             this.txtFilterExclude.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox2_KeyDown);
             this.txtFilterExclude.Leave += new System.EventHandler(this.textBox2_Leave);
             // 
@@ -453,7 +467,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(867, 3);
+            this.label5.Location = new System.Drawing.Point(888, 3);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(255, 23);
             this.label5.TabIndex = 10;
@@ -467,7 +481,7 @@
             this.label4.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(11, 3);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(794, 23);
+            this.label4.Size = new System.Drawing.Size(815, 23);
             this.label4.TabIndex = 10;
             this.label4.Text = "Document List";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -483,7 +497,7 @@
             this.lstDocList.IntegralHeight = false;
             this.lstDocList.Location = new System.Drawing.Point(1, 29);
             this.lstDocList.Name = "lstDocList";
-            this.lstDocList.Size = new System.Drawing.Size(860, 356);
+            this.lstDocList.Size = new System.Drawing.Size(881, 356);
             this.lstDocList.TabIndex = 6;
             this.lstDocList.Scroll += new DataSense.BetterListBox.BetterListBoxScrollDelegate(this.betterListBox1_Scroll);
             this.lstDocList.SelectedIndexChanged += new System.EventHandler(this.betterListBox1_SelectedIndexChanged);
@@ -492,7 +506,7 @@
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(1128, 3);
+            this.label6.Location = new System.Drawing.Point(1149, 3);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(146, 23);
             this.label6.TabIndex = 10;
@@ -507,7 +521,7 @@
             this.analyzeToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1319, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1340, 24);
             this.menuStrip1.TabIndex = 15;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -546,7 +560,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1319, 831);
+            this.ClientSize = new System.Drawing.Size(1340, 831);
             this.Controls.Add(this.splitContainer2);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -615,6 +629,8 @@
         private System.Windows.Forms.ComboBox cmbDiscFilter;
         private System.Windows.Forms.ComboBox cmbCoyFilter;
         private System.Windows.Forms.ToolStripMenuItem clearDataToolStripMenuItem;
+        private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
     }
 }
 

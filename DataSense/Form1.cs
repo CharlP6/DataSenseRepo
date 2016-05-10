@@ -60,7 +60,7 @@ namespace DataSense
         List<sStatus> SelectedStatus = new List<sStatus>();
 
         private void LoadCSV()
-        {            
+        {
             if (OFD.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 foreach (string filename in OFD.FileNames)
@@ -134,8 +134,8 @@ namespace DataSense
                 List<DocEntry> tempEntry = Doc.OrderBy(o => o.ActionDate).ToList();
 
                 for (int i = 0; i < tempEntry.Count; i++)
-                {                    
-                    if (i < tempEntry.Count-1)
+                {
+                    if (i < tempEntry.Count - 1)
                     {
                         if (tempEntry[i].ActionDate == DateTime.Parse("0001/01/01"))
                         {
@@ -165,7 +165,7 @@ namespace DataSense
                     }
                     else
                     {
-                        if(!(tempEntry [i].Action.ToUpper().Contains("TRA")))
+                        if (!(tempEntry[i].Action.ToUpper().Contains("TRA")))
                         {
                             act = "TRA";
                         }
@@ -196,7 +196,7 @@ namespace DataSense
 
             FilteredDocs = ConDocs.OrderBy(o => o.DocNumber).ToList();
 
-            Regex rgxCombos = new Regex(@"KIPP-\w{3}-\w{4}-\w{2}-\w{3}-");
+            Regex rgxCombos = new Regex(@"KIPP-\w{3}-\w{4,}-\w{2}-\w{3}-");
 
             List<sDocument> tDocs = ConDocs.Where(w => rgxCombos.IsMatch(w.DocNumber)).ToList();
 
@@ -396,7 +396,7 @@ namespace DataSense
 
             Color bColour;
 
-            
+
             if (StatusColours.Count > 0)
             {
 
@@ -445,15 +445,15 @@ namespace DataSense
 
                     float textLength = e.Graphics.MeasureString(lstDocStats.Items[e.Index].ToString(), e.Font, 0, sf).Width;
 
-                    if (lstDocStats.HorizontalExtent < textLength )
+                    if (lstDocStats.HorizontalExtent < textLength)
                     {
-                        lstDocStats.HorizontalExtent = (int)textLength+5;
+                        lstDocStats.HorizontalExtent = (int)textLength + 5;
                     }
                 }
             }
-            if (lstDocStats.HorizontalExtent < SelectedStatus.Max(m => m.Age*width))
+            if (lstDocStats.HorizontalExtent < SelectedStatus.Max(m => m.Age * width))
             {
-                lstDocStats.HorizontalExtent = SelectedStatus.Max(m => m.Age * width)+5;
+                lstDocStats.HorizontalExtent = SelectedStatus.Max(m => m.Age * width) + 5;
             }
         }
 
@@ -556,8 +556,8 @@ namespace DataSense
             string discFilter = (cmbDiscFilter.Text != "") ? cmbDiscFilter.Text : @"\w{2}"; ;
             string typeFilter = (cmbTypeFilter.Text != "") ? cmbTypeFilter.Text : @"\w{3}"; ;
 
-            if (checkBox1.Checked) rgxFormat = new Regex(@"KIPP-" + coyFilter + @"-\w{4}-" + discFilter + "-" + typeFilter);
-            else rgxFormat = new Regex("");            
+            if (checkBox1.Checked) rgxFormat = new Regex(@"KIPP-" + coyFilter + @"-\w{4,}-" + discFilter + "-" + typeFilter);
+            else rgxFormat = new Regex("");
 
             try
             {
@@ -590,7 +590,7 @@ namespace DataSense
                     }
                 }
 
-                if(radSortAge.Checked)
+                if (radSortAge.Checked)
                 {
                     eFilter = eFilter.OrderBy(o => o.Status.Sum(u => u.Age));
                 }
@@ -626,6 +626,23 @@ namespace DataSense
         private void clearDataToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DocEntries.Clear();
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine((lstGraph.SelectedItem as sDocument).DocNumber);
+            sb.AppendLine((lstGraph.SelectedItem as sDocument).DocTitle);
+
+            foreach (string t in lstDocStats.Items)
+            {
+                sb.AppendLine(t);
+            }
+            Clipboard.SetData(DataFormats.StringFormat, sb.ToString());
+
+
         }
     }
 
